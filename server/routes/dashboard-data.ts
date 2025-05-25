@@ -2,7 +2,8 @@ import { Request, Response } from 'express';
 
 // Azure Blob Storage configuration
 const AZURE_STORAGE_URL = process.env.AZURE_STORAGE_URL || 'https://your-account.blob.core.windows.net';
-const CONTAINER_NAME = 'dashboard-data';
+const CONTAINER_NAME = process.env.AZURE_CONTAINER_NAME || 'dashboard-data';
+const USE_PARQUET = process.env.USE_PARQUET === 'true';
 
 // Cache configuration
 let cachedData: any = null;
