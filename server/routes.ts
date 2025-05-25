@@ -1,8 +1,12 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { healthCheck } from "./health";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Health check endpoint
+  app.get("/api/health", healthCheck);
+
   // Dashboard analytics endpoints
   app.get("/api/dashboard/kpi", async (req, res) => {
     try {
