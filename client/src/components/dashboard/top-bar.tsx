@@ -70,7 +70,7 @@ export default function TopBar({ onToggleSidebar, filters, useRealData, onToggle
             />
             <div className="flex items-center gap-2 text-sm">
               <Database className={`w-4 h-4 ${useRealData ? 'text-blue-500' : 'text-gray-400'}`} />
-              <span className="text-gray-600">Live Data</span>
+              <span className="text-gray-600">Mock Data</span>
             </div>
           </div>
           
