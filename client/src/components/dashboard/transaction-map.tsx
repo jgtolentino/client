@@ -28,18 +28,19 @@ export default function TransactionMap() {
   }
 
   return (
-    <div className="p-4 bg-white rounded-xl shadow-sm">
+    <div className="p-4 bg-white rounded-xl shadow-sm h-full flex flex-col">
       <div className="flex items-center justify-between mb-2">
         <span className="text-base font-semibold text-gray-700">
           Transaction Volume
         </span>
         <span className="text-xs text-gray-400">Last 30 days</span>
       </div>
-      <div style={{ height: 320, width: "100%" }}>
+      <div className="flex-1 min-h-[300px] h-[320px] relative rounded-lg overflow-hidden">
         <MapContainer
           center={[12.8797, 121.7740]} // Center of the Philippines
           zoom={6}
-          style={{ height: "100%", width: "100%", borderRadius: 12 }}
+          className="h-full w-full"
+          style={{ background: '#f8fafc' }}
           scrollWheelZoom={false}
         >
           <TileLayer

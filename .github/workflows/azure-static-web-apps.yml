@@ -28,10 +28,21 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps
+        run: npm ci
 
       - name: Build project
         run: npm run build
+
+      - name: Verify build output
+        run: |
+          echo "Contents of dist/public directory:"
+          ls -la ./dist/public
+          echo "Build size:"
+          du -sh ./dist/public
+          echo "File count:"
+          find ./dist/public -type f | wc -l
+          echo "Large files (>10MB):"
+          find ./dist/public -type f -size +10M -exec ls -lh {} \;
 
       - name: Build And Deploy
         id: builddeploy
@@ -41,8 +52,9 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
           app_location: "/"
-          api_location: "api" 
+          api_location: "" 
           output_location: "dist/public"
+          skip_app_build: true
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
