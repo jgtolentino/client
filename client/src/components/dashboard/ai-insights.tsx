@@ -147,22 +147,22 @@ export default function AIInsights({ filters }: AIInsightsProps) {
   const insightsToShow = dynamicInsights.length > 0 ? dynamicInsights : aiInsights;
 
   return (
-    <Card className="shadow-sm border border-gray-200 mt-6">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-        <CardTitle className="text-lg font-semibold flex items-center gap-2">
-          <Lightbulb className="h-5 w-5 text-yellow-500" />
+    <Card className="shadow-sm border border-gray-200 h-full">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0" style={{ padding: '12px 20px', height: '48px' }}>
+        <CardTitle className="font-semibold flex items-center" style={{ fontSize: '16px', gap: '8px' }}>
+          <Lightbulb className="text-yellow-500" style={{ width: '20px', height: '20px' }} />
           AI Recommendation Panel
         </CardTitle>
-        <div className="flex items-center gap-2">
-          <span className="relative flex h-2 w-2">
+        <div className="flex items-center" style={{ gap: '8px' }}>
+          <span className="relative flex" style={{ height: '8px', width: '8px' }}>
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+            <span className="relative inline-flex rounded-full bg-green-500" style={{ height: '8px', width: '8px' }}></span>
           </span>
-          <span className="text-sm text-muted-foreground">Live insights</span>
+          <span className="text-muted-foreground" style={{ fontSize: '12px' }}>Live insights</span>
         </div>
       </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <CardContent style={{ padding: '16px 20px', height: 'calc(100% - 48px)' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', height: '100%' }}>
           {insightsToShow?.map((insight: any) => {
             const IconComponent = insight.icon || Info;
             const colors = getInsightColors(insight.type);
@@ -170,22 +170,23 @@ export default function AIInsights({ filters }: AIInsightsProps) {
             return (
               <div
                 key={insight.id}
-                className={`border-l-4 ${colors.border} ${colors.bg} p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow`}
+                className={`border-l-4 ${colors.border} ${colors.bg} rounded-lg shadow-sm hover:shadow-md transition-shadow h-full`}
+                style={{ padding: '12px' }}
               >
-                <div className="flex items-start gap-3">
-                  <div className={`w-10 h-10 ${colors.iconBg} rounded-lg flex items-center justify-center flex-shrink-0`}>
-                    <IconComponent className="w-5 h-5 text-white" />
+                <div className="flex items-start h-full" style={{ gap: '12px' }}>
+                  <div className={`${colors.iconBg} rounded-lg flex items-center justify-center flex-shrink-0`} style={{ width: '36px', height: '36px' }}>
+                    <IconComponent className="text-white" style={{ width: '20px', height: '20px' }} />
                   </div>
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-gray-900 mb-1">{insight.title}</h4>
-                    <p className="text-sm text-gray-600 mb-3 leading-relaxed">{insight.description}</p>
+                  <div className="flex-1 flex flex-col">
+                    <h4 className="font-semibold text-gray-900" style={{ fontSize: '14px', marginBottom: '4px' }}>{insight.title}</h4>
+                    <p className="text-gray-600 leading-relaxed flex-1" style={{ fontSize: '12px', marginBottom: '8px' }}>{insight.description}</p>
                     {insight.action && (
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-medium text-gray-500">Action:</span>
+                        <span className="font-medium text-gray-500" style={{ fontSize: '11px' }}>Action:</span>
                         <Button 
                           size="sm"
                           variant="ghost"
-                          className="text-xs h-7 px-2"
+                          style={{ fontSize: '11px', height: '24px', padding: '0 8px' }}
                         >
                           {insight.action}
                         </Button>
@@ -197,16 +198,6 @@ export default function AIInsights({ filters }: AIInsightsProps) {
             );
           })}
         </div>
-        
-        {/* Contextual tip based on filters */}
-        {filters && filters.dateRange !== "Last 30 Days" && (
-          <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-            <p className="text-sm text-blue-800">
-              💡 <strong>Tip:</strong> You're viewing {filters.dateRange.toLowerCase()} data. 
-              Compare with other periods to identify seasonal trends.
-            </p>
-          </div>
-        )}
       </CardContent>
     </Card>
   );

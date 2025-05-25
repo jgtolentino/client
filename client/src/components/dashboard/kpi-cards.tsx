@@ -9,11 +9,11 @@ export default function KPICards() {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="h-full" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px' }}>
         {[...Array(4)].map((_, i) => (
-          <Card key={i}>
-            <CardContent className="p-6">
-              <Skeleton className="h-32 w-full" />
+          <Card key={i} className="h-full">
+            <CardContent style={{ padding: '16px', height: '100%' }}>
+              <Skeleton className="w-full" style={{ height: '100%' }} />
             </CardContent>
           </Card>
         ))}
@@ -23,9 +23,9 @@ export default function KPICards() {
 
   if (!kpiMetrics) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card>
-          <CardContent className="p-6">
+      <div className="h-full" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px' }}>
+        <Card className="h-full">
+          <CardContent style={{ padding: '16px', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <div className="text-center text-muted-foreground">
               Unable to load KPI metrics
             </div>
@@ -123,7 +123,7 @@ export default function KPICards() {
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div className="h-full" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px' }}>
       {kpiCards.map((card, index) => {
         const TrendIcon = getTrendIcon(card.change);
         const trendColorClass = getTrendColor(card.change, card.trendColor);
@@ -131,45 +131,46 @@ export default function KPICards() {
         return (
           <Card 
             key={index} 
-            className={`border-l-4 ${card.accentColor} shadow-sm hover:shadow-md transition-all duration-200 relative overflow-hidden`}
+            className={`border-l-4 ${card.accentColor} shadow-sm hover:shadow-md transition-all duration-200 relative overflow-hidden h-full`}
           >
             {/* AI Insight Dot - only show for significant changes */}
             {Math.abs(card.change) > 2 && (
-              <div className="absolute top-2 right-2">
-                <div className="relative flex h-2 w-2">
+              <div className="absolute" style={{ top: '8px', right: '8px' }}>
+                <div className="relative flex" style={{ height: '8px', width: '8px' }}>
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500"></span>
+                  <span className="relative inline-flex rounded-full bg-purple-500" style={{ height: '8px', width: '8px' }}></span>
                 </div>
               </div>
             )}
             
-            <CardContent className="p-6">
+            <CardContent style={{ padding: '16px', height: '100%', display: 'flex', flexDirection: 'column' }}>
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-muted-foreground">
+                  <p className="font-medium text-muted-foreground" style={{ fontSize: '12px' }}>
                     {card.title}
                   </p>
-                  <p className="text-2xl font-bold mt-1">
+                  <p className="font-bold" style={{ fontSize: '20px', marginTop: '4px' }}>
                     {card.value}
                   </p>
-                  <p className="text-xs text-muted-foreground mt-1">
+                  <p className="text-muted-foreground" style={{ fontSize: '11px', marginTop: '2px' }}>
                     {card.subtitle}
                   </p>
                   
                   {/* Trend Badge */}
-                  <div className="flex items-center gap-2 mt-3">
+                  <div className="flex items-center" style={{ gap: '8px', marginTop: '8px' }}>
                     <Badge 
                       variant="secondary" 
-                      className={`${trendColorClass} px-2 py-0.5 text-xs font-medium flex items-center gap-1`}
+                      className={`${trendColorClass} font-medium flex items-center`}
+                      style={{ padding: '2px 6px', fontSize: '11px', gap: '4px' }}
                     >
-                      <TrendIcon className="w-3 h-3" />
+                      <TrendIcon style={{ width: '12px', height: '12px' }} />
                       {card.change > 0 ? '+' : ''}{card.change.toFixed(1)}%
                     </Badge>
-                    <span className="text-xs text-muted-foreground">vs last period</span>
+                    <span className="text-muted-foreground" style={{ fontSize: '11px' }}>vs last period</span>
                   </div>
                 </div>
                 
-                <div className={`w-12 h-12 ${card.iconBg} rounded-lg flex items-center justify-center ml-4`}>
+                <div className={`${card.iconBg} rounded-lg flex items-center justify-center`} style={{ width: '40px', height: '40px', marginLeft: '12px' }}>
                   {typeof card.icon === 'function' ? (
                     <card.icon />
                   ) : (
@@ -179,30 +180,32 @@ export default function KPICards() {
               </div>
               
               {/* Mini sparkline preview - visual indicator of trend */}
-              {kpiMetrics.trendsData && (
-                <div className="mt-4 flex items-end justify-between h-8 gap-1">
-                  {kpiMetrics.trendsData.slice(-7).map((point, i) => {
-                    const height = (point.value / Math.max(...kpiMetrics.trendsData.map(d => d.value))) * 100;
-                    return (
-                      <div
-                        key={i}
-                        className={`flex-1 ${card.iconBg} opacity-20 hover:opacity-40 transition-opacity rounded-t`}
-                        style={{ height: `${height}%` }}
-                        title={`${point.label}: ${point.value}`}
-                      />
-                    );
-                  })}
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
+                {kpiMetrics.trendsData && (
+                  <div className="flex items-end justify-between" style={{ height: '24px', gap: '2px', marginTop: '12px' }}>
+                    {kpiMetrics.trendsData.slice(-7).map((point, i) => {
+                      const height = (point.value / Math.max(...kpiMetrics.trendsData.map(d => d.value))) * 100;
+                      return (
+                        <div
+                          key={i}
+                          className={`flex-1 ${card.iconBg} opacity-20 hover:opacity-40 transition-opacity rounded-t`}
+                          style={{ height: `${height}%` }}
+                          title={`${point.label}: ${point.value}`}
+                        />
+                      );
+                    })}
+                  </div>
+                )}
+                
+                {/* Query Time Indicator */}
+                <div className="flex items-center justify-between border-t border-gray-100" style={{ marginTop: '8px', paddingTop: '8px' }}>
+                  <span className="text-muted-foreground" style={{ fontSize: '10px' }}>
+                    Query time: 0.24s
+                  </span>
+                  <button className="text-primary hover:underline" style={{ fontSize: '10px' }}>
+                    View details →
+                  </button>
                 </div>
-              )}
-              
-              {/* Query Time Indicator */}
-              <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
-                <span className="text-xs text-muted-foreground">
-                  Query time: 0.24s
-                </span>
-                <button className="text-xs text-primary hover:underline">
-                  View details →
-                </button>
               </div>
             </CardContent>
           </Card>
