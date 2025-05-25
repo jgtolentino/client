@@ -18,8 +18,6 @@ export default function Dashboard() {
     category: "All Categories"
   });
 
-  const { useRealData, setUseRealData } = useDashboardData();
-
   const toggleSidebar = () => {
     setSidebarCollapsed(!sidebarCollapsed);
   };
@@ -37,8 +35,6 @@ export default function Dashboard() {
           onToggleSidebar={toggleSidebar}
           filters={filters}
           onUpdateFilter={updateFilter}
-          useRealData={useRealData}
-          onToggleDataSource={setUseRealData}
         />
         
         <main className="flex-1 overflow-auto p-6 bg-background">

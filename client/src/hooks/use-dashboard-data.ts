@@ -79,130 +79,117 @@ export function useDashboardData() {
     data: kpiMetrics, 
     isLoading: kpiLoading 
   } = useQuery<KPIMetrics>({
-    queryKey: ["kpi", useRealData],
-    queryFn: useRealData 
-      ? () => fetchRealData("dashboard_data").then(data => {
-          // Transform comprehensive real data to KPI format
-          const transactions = data.transaction_trends?.length || 0;
-          const avgValue = data.transaction_trends?.reduce((sum: number, t: any) => sum + t.peso_value, 0) / transactions || 0;
-          const substitutionRate = data.substitution_patterns?.length / transactions || 0.0312;
-          
-          // Create monthly trends from transaction data
-          const monthlyData = data.transaction_trends?.reduce((acc: any, t: any) => {
-            const month = new Date(t.date).toLocaleDateString('en-US', { month: 'short' });
-            if (!acc[month]) acc[month] = { total: 0, count: 0 };
-            acc[month].total += t.peso_value;
-            acc[month].count += 1;
-            return acc;
-          }, {}) || {};
-          
-          const trendsData = Object.entries(monthlyData).map(([month, data]: [string, any]) => ({
-            label: month,
-            value: Math.round(data.total / data.count),
-            change: Math.random() * 20 - 10 // Could calculate real change if needed
-          }));
+    queryKey: ["kpi"],
+    queryFn: () => fetchRealData("dashboard_data").then(data => {
+      // Transform comprehensive real data to KPI format
+      const transactions = data.transaction_trends?.length || 0;
+      const avgValue = data.transaction_trends?.reduce((sum: number, t: any) => sum + t.peso_value, 0) / transactions || 0;
+      const substitutionRate = data.substitution_patterns?.length / transactions || 0.0312;
+      
+      // Create monthly trends from transaction data
+      const monthlyData = data.transaction_trends?.reduce((acc: any, t: any) => {
+        const month = new Date(t.date).toLocaleDateString('en-US', { month: 'short' });
+        if (!acc[month]) acc[month] = { total: 0, count: 0 };
+        acc[month].total += t.peso_value;
+        acc[month].count += 1;
+        return acc;
+      }, {}) || {};
+      
+      const trendsData = Object.entries(monthlyData).map(([month, data]: [string, any]) => ({
+        label: month,
+        value: Math.round(data.total / data.count),
+        change: Math.random() * 20 - 10 // Could calculate real change if needed
+      }));
 
-          return {
-            transactions,
-            avgValue,
-            substitutionRate,
-            dataFreshness: 0.98,
-            trendsData
-          };
-        })
-      : () => Promise.resolve(generateMockKPIMetrics())
+      return {
+        transactions,
+        avgValue,
+        substitutionRate,
+        dataFreshness: 0.98,
+        trendsData
+      };
+    })
   });
 
   const { 
     data: locationData, 
     isLoading: locationLoading 
   } = useQuery<LocationData[]>({
-    queryKey: ["locations", useRealData],
-    queryFn: useRealData 
-      ? () => fetchRealData("ph").then(data => {
-          // Transform PH data to location format (simplified)
-          return generateMockLocationData(); // Use mock for now, can enhance later
-        })
-      : () => Promise.resolve(generateMockLocationData())
+    queryKey: ["locations"],
+    queryFn: () => Promise.resolve(generateMockLocationData())
   });
 
   const { 
     data: categoryData, 
     isLoading: categoryLoading 
   } = useQuery<CategoryData[]>({
-    queryKey: ["categories", useRealData],
-    queryFn: useRealData 
-      ? () => fetchRealData("dashboard_data").then(data => {
-          const categories = data.transaction_trends?.reduce((acc: any, t: any) => {
-            acc[t.category] = (acc[t.category] || 0) + t.peso_value;
-            return acc;
-          }, {}) || {};
-          
-          const total = Object.values(categories).reduce((sum: number, val: any) => sum + val, 0);
-          const colors = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#f97316", "#84cc16"];
-          
-          return Object.entries(categories).map(([category, value]: [string, any], i) => ({
-            category,
-            value: Math.round(value),
-            percentage: Math.round((value / total) * 100 * 10) / 10,
-            color: colors[i % colors.length]
-          }));
-        })
-      : () => Promise.resolve(generateMockCategoryData())
+    queryKey: ["categories"],
+    queryFn: () => fetchRealData("dashboard_data").then(data => {
+      const categories = data.transaction_trends?.reduce((acc: any, t: any) => {
+        acc[t.category] = (acc[t.category] || 0) + t.peso_value;
+        return acc;
+      }, {}) || {};
+      
+      const total = Object.values(categories).reduce((sum: number, val: any) => sum + val, 0);
+      const colors = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#f97316", "#84cc16"];
+      
+      return Object.entries(categories).map(([category, value]: [string, any], i) => ({
+        category,
+        value: Math.round(value),
+        percentage: Math.round((value / total) * 100 * 10) / 10,
+        color: colors[i % colors.length]
+      }));
+    })
   });
 
   const { 
     data: brandData, 
     isLoading: brandLoading 
   } = useQuery<BrandData[]>({
-    queryKey: ["brands", useRealData],
-    queryFn: useRealData 
-      ? () => fetchRealData("dashboard_data").then(data => {
-          return data.brand_trends?.slice(0, 20).map((item: any) => ({
-            brand: item.brand,
-            sales: Math.round(item.value),
-            category: item.category,
-            isTBWAClient: Math.random() > 0.6, // 40% chance of being TBWA client
-            growth: Math.round(item.pct_change * 100 * 10) / 10
-          })) || [];
-        })
-      : () => Promise.resolve(generateMockBrandData())
+    queryKey: ["brands"],
+    queryFn: () => fetchRealData("dashboard_data").then(data => {
+      return data.brand_trends?.slice(0, 20).map((item: any) => ({
+        brand: item.brand,
+        sales: Math.round(item.value),
+        category: item.category,
+        isTBWAClient: Math.random() > 0.6, // 40% chance of being TBWA client
+        growth: Math.round(item.pct_change * 100 * 10) / 10
+      })) || [];
+    })
   });
 
   const { 
     data: trendData, 
     isLoading: trendLoading 
   } = useQuery<TrendData[]>({
-    queryKey: ["trends", useRealData],
-    queryFn: useRealData 
-      ? () => fetchRealData("dashboard_data").then(data => {
-          // Aggregate by date for cleaner trends
-          const dailyData = data.transaction_trends?.reduce((acc: any, t: any) => {
-            if (!acc[t.date]) acc[t.date] = { transactions: 0, pesoValue: 0, count: 0 };
-            acc[t.date].transactions += t.units;
-            acc[t.date].pesoValue += t.peso_value;
-            acc[t.date].count += 1;
-            return acc;
-          }, {}) || {};
-          
-          return Object.entries(dailyData)
-            .sort(([a], [b]) => a.localeCompare(b))
-            .slice(0, 30) // Last 30 data points
-            .map(([date, data]: [string, any]) => ({
-              period: date,
-              transactions: data.transactions,
-              pesoValue: Math.round(data.pesoValue)
-            }));
-        })
-      : () => Promise.resolve(generateMockTrendData())
+    queryKey: ["trends"],
+    queryFn: () => fetchRealData("dashboard_data").then(data => {
+      // Aggregate by date for cleaner trends
+      const dailyData = data.transaction_trends?.reduce((acc: any, t: any) => {
+        if (!acc[t.date]) acc[t.date] = { transactions: 0, pesoValue: 0, count: 0 };
+        acc[t.date].transactions += t.units;
+        acc[t.date].pesoValue += t.peso_value;
+        acc[t.date].count += 1;
+        return acc;
+      }, {}) || {};
+      
+      return Object.entries(dailyData)
+        .sort(([a], [b]) => a.localeCompare(b))
+        .slice(0, 30) // Last 30 data points
+        .map(([date, data]: [string, any]) => ({
+          period: date,
+          transactions: data.transactions,
+          pesoValue: Math.round(data.pesoValue)
+        }));
+    })
   });
 
   const { 
     data: aiInsights, 
     isLoading: insightsLoading 
   } = useQuery<AIInsight[]>({
-    queryKey: ["insights", useRealData],
-    queryFn: () => Promise.resolve(generateMockAIInsights()) // Always use mock for AI insights
+    queryKey: ["insights"],
+    queryFn: () => Promise.resolve(generateMockAIInsights())
   });
 
   const isLoading = kpiLoading || locationLoading || categoryLoading || brandLoading || trendLoading || insightsLoading;
@@ -215,7 +202,5 @@ export function useDashboardData() {
     trendData,
     aiInsights,
     isLoading,
-    useRealData,
-    setUseRealData,
   };
 }
