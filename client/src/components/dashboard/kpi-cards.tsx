@@ -146,35 +146,35 @@ export default function KPICards() {
             <CardContent style={{ padding: '16px', height: '100%', display: 'flex', flexDirection: 'column' }}>
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <p className="font-medium text-muted-foreground" style={{ fontSize: '12px' }}>
+                  <p className="font-medium text-muted-foreground" style={{ fontSize: '13px' }}>
                     {card.title}
                   </p>
-                  <p className="font-bold" style={{ fontSize: '20px', marginTop: '4px' }}>
+                  <p className="font-bold" style={{ fontSize: '28px', marginTop: '8px', lineHeight: 1 }}>
                     {card.value}
                   </p>
-                  <p className="text-muted-foreground" style={{ fontSize: '11px', marginTop: '2px' }}>
+                  <p className="text-muted-foreground" style={{ fontSize: '12px', marginTop: '4px' }}>
                     {card.subtitle}
                   </p>
                   
                   {/* Trend Badge */}
-                  <div className="flex items-center" style={{ gap: '8px', marginTop: '8px' }}>
+                  <div className="flex items-center" style={{ gap: '8px', marginTop: '12px' }}>
                     <Badge 
                       variant="secondary" 
                       className={`${trendColorClass} font-medium flex items-center`}
-                      style={{ padding: '2px 6px', fontSize: '11px', gap: '4px' }}
+                      style={{ padding: '4px 8px', fontSize: '12px', gap: '4px' }}
                     >
-                      <TrendIcon style={{ width: '12px', height: '12px' }} />
+                      <TrendIcon style={{ width: '14px', height: '14px' }} />
                       {card.change > 0 ? '+' : ''}{card.change.toFixed(1)}%
                     </Badge>
-                    <span className="text-muted-foreground" style={{ fontSize: '11px' }}>vs last period</span>
+                    <span className="text-muted-foreground" style={{ fontSize: '12px' }}>vs last period</span>
                   </div>
                 </div>
                 
-                <div className={`${card.iconBg} rounded-lg flex items-center justify-center`} style={{ width: '40px', height: '40px', marginLeft: '12px' }}>
+                <div className={`${card.iconBg} rounded-lg flex items-center justify-center`} style={{ width: '48px', height: '48px', marginLeft: '16px' }}>
                   {typeof card.icon === 'function' ? (
                     <card.icon />
                   ) : (
-                    <card.icon className={`w-6 h-6 ${card.iconColor}`} />
+                    <card.icon className={`${card.iconColor}`} style={{ width: '28px', height: '28px' }} />
                   )}
                 </div>
               </div>
@@ -182,13 +182,13 @@ export default function KPICards() {
               {/* Mini sparkline preview - visual indicator of trend */}
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
                 {kpiMetrics.trendsData && (
-                  <div className="flex items-end justify-between" style={{ height: '24px', gap: '2px', marginTop: '12px' }}>
+                  <div className="flex items-end justify-between" style={{ height: '32px', gap: '2px', marginTop: '16px' }}>
                     {kpiMetrics.trendsData.slice(-7).map((point, i) => {
                       const height = (point.value / Math.max(...kpiMetrics.trendsData.map(d => d.value))) * 100;
                       return (
                         <div
                           key={i}
-                          className={`flex-1 ${card.iconBg} opacity-20 hover:opacity-40 transition-opacity rounded-t`}
+                          className={`flex-1 ${card.iconBg} opacity-20 hover:opacity-40 transition-opacity rounded-t cursor-pointer`}
                           style={{ height: `${height}%` }}
                           title={`${point.label}: ${point.value}`}
                         />

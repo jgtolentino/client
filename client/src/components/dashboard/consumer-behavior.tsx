@@ -1,93 +1,160 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, MousePointer, MessageSquare, Store } from "lucide-react";
+import { Users, MousePointer, MessageSquare, Store, TrendingUp, UserCheck, Sparkles } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
+import { useDashboardData } from "@/hooks/use-dashboard-data";
+import { formatPercentage } from "@/lib/format-utils";
 
 export default function ConsumerBehavior() {
-  // Simulated behavior data - in a real app, this would come from the API
-  const behaviorData = {
+  const { behaviorData, isLoading } = useDashboardData();
+
+  // Use real data if available, otherwise use defaults
+  const data = behaviorData || {
     requestMethods: [
       { method: "Pointing", percentage: 65, count: 3250 },
       { method: "Verbal", percentage: 35, count: 1750 }
     ],
     storeAcceptance: {
       accepted: 78,
-      rejected: 22
+      rejected: 22,
+      influenced: 456,
+      total: 584
+    },
+    substitutionPatterns: {
+      rate: 15.8,
+      topSubstitutions: [
+        { from: "Brand A", to: "Brand B", count: 45 },
+        { from: "Brand C", to: "Brand D", count: 38 }
+      ]
     },
     preferences: [
-      { signal: "Brand Loyalty", strength: 85 },
-      { signal: "Price Sensitivity", strength: 72 },
-      { signal: "Quality Focus", strength: 68 },
-      { signal: "Convenience", strength: 45 }
+      { signal: "Brand Loyalty", strength: 85, trend: "+2%" },
+      { signal: "Price Sensitivity", strength: 72, trend: "-1%" },
+      { signal: "Quality Focus", strength: 68, trend: "+3%" },
+      { signal: "Convenience", strength: 45, trend: "0%" }
     ]
   };
 
   return (
     <Card className="h-full">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Users className="h-5 w-5" />
-          Consumer Behavior & Preferences
+      <CardHeader style={{ padding: '16px 20px', paddingBottom: '12px' }}>
+        <CardTitle className="flex items-center justify-between" style={{ fontSize: '16px' }}>
+          <span className="flex items-center" style={{ gap: '8px' }}>
+            <Users style={{ width: '20px', height: '20px' }} />
+            Consumer Behavior & Preferences
+          </span>
+          <Badge variant="outline" className="font-normal" style={{ fontSize: '11px' }}>
+            <Sparkles className="mr-1" style={{ width: '12px', height: '12px' }} />
+            AI Enhanced
+          </Badge>
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent style={{ padding: '16px 20px', paddingTop: '8px', height: 'calc(100% - 52px)', overflowY: 'auto' }}>
+        {/* Store Influence Metrics - NEW */}
+        <div style={{ marginBottom: '16px' }}>
+          <h4 className="font-medium flex items-center" style={{ fontSize: '13px', marginBottom: '8px', gap: '4px' }}>
+            <Store style={{ width: '14px', height: '14px' }} />
+            Store Attendant Influence
+          </h4>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-green-50 rounded-lg" style={{ padding: '12px' }}>
+              <div className="flex items-center justify-between">
+                <span className="text-green-700" style={{ fontSize: '11px' }}>Influenced Sales</span>
+                <UserCheck className="text-green-600" style={{ width: '16px', height: '16px' }} />
+              </div>
+              <p className="font-bold text-green-700" style={{ fontSize: '20px', marginTop: '4px' }}>
+                {data.storeAcceptance.influenced}
+              </p>
+              <p className="text-green-600" style={{ fontSize: '10px' }}>
+                {formatPercentage((data.storeAcceptance.influenced / data.storeAcceptance.total) * 100)}% of total
+              </p>
+            </div>
+            <div className="bg-blue-50 rounded-lg" style={{ padding: '12px' }}>
+              <div className="flex items-center justify-between">
+                <span className="text-blue-700" style={{ fontSize: '11px' }}>Acceptance Rate</span>
+                <TrendingUp className="text-blue-600" style={{ width: '16px', height: '16px' }} />
+              </div>
+              <p className="font-bold text-blue-700" style={{ fontSize: '20px', marginTop: '4px' }}>
+                {data.storeAcceptance.accepted}%
+              </p>
+              <p className="text-blue-600" style={{ fontSize: '10px' }}>Above average</p>
+            </div>
+          </div>
+        </div>
+
         {/* Request Methods */}
-        <div>
-          <h4 className="text-sm font-medium mb-2">Request Methods</h4>
-          <div className="space-y-2">
-            {behaviorData.requestMethods.map((method) => (
-              <div key={method.method} className="space-y-1">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="flex items-center gap-1">
+        <div style={{ marginBottom: '16px' }}>
+          <h4 className="font-medium" style={{ fontSize: '13px', marginBottom: '8px' }}>Request Methods</h4>
+          <div style={{ display: 'flex', gap: '12px' }}>
+            {data.requestMethods.map((method) => (
+              <div key={method.method} className="flex-1">
+                <div className="flex items-center justify-between" style={{ marginBottom: '4px' }}>
+                  <span className="flex items-center" style={{ fontSize: '11px', gap: '4px' }}>
                     {method.method === "Pointing" ? (
-                      <MousePointer className="h-3 w-3" />
+                      <MousePointer style={{ width: '12px', height: '12px' }} />
                     ) : (
-                      <MessageSquare className="h-3 w-3" />
+                      <MessageSquare style={{ width: '12px', height: '12px' }} />
                     )}
                     {method.method}
                   </span>
-                  <span className="text-muted-foreground">{method.percentage}%</span>
+                  <span className="font-medium" style={{ fontSize: '12px' }}>{method.percentage}%</span>
                 </div>
-                <Progress value={method.percentage} className="h-2" />
+                <Progress value={method.percentage} style={{ height: '6px' }} />
+                <p className="text-muted-foreground" style={{ fontSize: '10px', marginTop: '2px' }}>
+                  {method.count.toLocaleString()} requests
+                </p>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Store Suggestion Acceptance */}
-        <div className="pt-3 border-t">
-          <h4 className="text-sm font-medium mb-2 flex items-center gap-1">
-            <Store className="h-4 w-4" />
-            Store Suggestion Acceptance
+        {/* Substitution Patterns - NEW */}
+        <div className="border-t" style={{ paddingTop: '12px', marginBottom: '16px' }}>
+          <h4 className="font-medium" style={{ fontSize: '13px', marginBottom: '8px' }}>
+            Substitution Patterns
           </h4>
-          <div className="flex items-center gap-4">
-            <div className="flex-1">
-              <div className="flex justify-between text-sm mb-1">
-                <span className="text-green-600">Accepted</span>
-                <span>{behaviorData.storeAcceptance.accepted}%</span>
-              </div>
-              <Progress value={behaviorData.storeAcceptance.accepted} className="h-2 bg-green-100" />
+          <div className="bg-orange-50 rounded-lg" style={{ padding: '12px', marginBottom: '8px' }}>
+            <div className="flex items-center justify-between">
+              <span className="text-orange-700" style={{ fontSize: '11px' }}>Substitution Rate</span>
+              <Badge className="bg-orange-600 text-white" style={{ fontSize: '10px' }}>
+                {data.substitutionPatterns.rate}%
+              </Badge>
             </div>
-            <div className="flex-1">
-              <div className="flex justify-between text-sm mb-1">
-                <span className="text-red-600">Rejected</span>
-                <span>{behaviorData.storeAcceptance.rejected}%</span>
+          </div>
+          <div style={{ fontSize: '11px', color: '#666' }}>
+            <p className="font-medium" style={{ marginBottom: '4px' }}>Top Substitutions:</p>
+            {data.substitutionPatterns.topSubstitutions.map((sub, idx) => (
+              <div key={idx} className="flex items-center justify-between" style={{ marginBottom: '2px' }}>
+                <span>{sub.from} → {sub.to}</span>
+                <span className="text-muted-foreground">{sub.count} times</span>
               </div>
-              <Progress value={behaviorData.storeAcceptance.rejected} className="h-2 bg-red-100" />
-            </div>
+            ))}
           </div>
         </div>
 
         {/* Preference Signals */}
-        <div className="pt-3 border-t">
-          <h4 className="text-sm font-medium mb-2">Preference Signals</h4>
+        <div className="border-t" style={{ paddingTop: '12px' }}>
+          <h4 className="font-medium" style={{ fontSize: '13px', marginBottom: '8px' }}>Preference Signals</h4>
           <div className="space-y-2">
-            {behaviorData.preferences.map((pref) => (
+            {data.preferences.map((pref) => (
               <div key={pref.signal} className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">{pref.signal}</span>
-                <div className="flex items-center gap-2">
-                  <Progress value={pref.strength} className="w-20 h-1.5" />
-                  <span className="text-xs font-medium w-10 text-right">{pref.strength}%</span>
+                <span className="text-muted-foreground" style={{ fontSize: '11px' }}>{pref.signal}</span>
+                <div className="flex items-center" style={{ gap: '8px' }}>
+                  <Progress value={pref.strength} style={{ width: '60px', height: '4px' }} />
+                  <span className="font-medium" style={{ fontSize: '11px', width: '32px', textAlign: 'right' }}>
+                    {pref.strength}%
+                  </span>
+                  <span 
+                    className={`text-xs ${
+                      pref.trend.startsWith('+') ? 'text-green-600' : 
+                      pref.trend.startsWith('-') ? 'text-red-600' : 
+                      'text-gray-500'
+                    }`}
+                    style={{ fontSize: '10px', width: '28px' }}
+                  >
+                    {pref.trend}
+                  </span>
                 </div>
               </div>
             ))}

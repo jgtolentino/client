@@ -14,37 +14,57 @@ export default function Sidebar({ collapsed }: SidebarProps) {
   ];
 
   return (
-    <div className={`${collapsed ? 'sidebar-collapsed' : 'sidebar-expanded'} bg-white border-r border-gray-200 flex flex-col transition-all duration-300 ease-in-out`}>
+    <div className={`${collapsed ? 'sidebar-collapsed' : 'sidebar-expanded'} bg-white border-r border-gray-200 flex flex-col transition-all duration-300 ease-in-out h-full`}>
       {/* Sidebar Header */}
-      <div className="p-4 border-b border-gray-200">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-primary rounded flex items-center justify-center">
-            <BarChart3 className="w-5 h-5 text-primary-foreground" />
+      <div style={{ padding: '16px', borderBottom: '1px solid #e5e7eb' }}>
+        <div className="flex items-center" style={{ gap: '12px' }}>
+          <div className="bg-primary rounded-lg flex items-center justify-center transition-transform hover:scale-110" style={{ width: '36px', height: '36px' }}>
+            <BarChart3 className="text-primary-foreground" style={{ width: '20px', height: '20px' }} />
           </div>
           {!collapsed && (
-            <span className="font-semibold text-foreground">Client360</span>
+            <span className="font-semibold text-foreground" style={{ fontSize: '18px' }}>Client360</span>
           )}
         </div>
       </div>
       
       {/* Navigation Menu */}
-      <nav className="flex-1 p-4">
-        <ul className="space-y-2">
+      <nav className="flex-1" style={{ padding: '16px' }}>
+        <ul style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           {navItems.map((item, index) => (
             <li key={index}>
               <a 
                 href="#" 
-                className={`nav-item ${item.active ? 'active' : 'text-foreground hover:bg-muted'}`}
+                className={`flex items-center rounded-lg transition-all duration-200 ${
+                  item.active 
+                    ? 'bg-primary text-primary-foreground shadow-sm' 
+                    : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+                }`}
+                style={{ 
+                  padding: collapsed ? '12px' : '12px 16px',
+                  gap: '12px',
+                  textDecoration: 'none'
+                }}
               >
-                <item.icon className="w-5 h-5" />
+                <item.icon style={{ width: '20px', height: '20px', flexShrink: 0 }} />
                 {!collapsed && (
-                  <span className="nav-text">{item.label}</span>
+                  <span style={{ fontSize: '14px', fontWeight: item.active ? 500 : 400 }}>
+                    {item.label}
+                  </span>
                 )}
               </a>
             </li>
           ))}
         </ul>
       </nav>
+      
+      {/* Sidebar Footer - Optional */}
+      {!collapsed && (
+        <div style={{ padding: '16px', borderTop: '1px solid #e5e7eb' }}>
+          <p className="text-muted-foreground" style={{ fontSize: '11px', textAlign: 'center' }}>
+            © 2024 Client360 v2.0
+          </p>
+        </div>
+      )}
     </div>
   );
 }

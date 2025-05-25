@@ -91,8 +91,8 @@ export default function Dashboard() {
             
             {/* Main Dashboard Content */}
             <main className="flex-1 overflow-auto" style={{ padding: '24px' }}>
-              {/* KPI Cards - Fixed Height */}
-              <div style={{ height: '120px', marginBottom: '24px' }}>
+              {/* KPI Cards - Increased Height */}
+              <div style={{ height: '160px', marginBottom: '24px' }}>
                 <KPICards />
               </div>
               
@@ -100,38 +100,38 @@ export default function Dashboard() {
               <div style={{ 
                 display: 'grid', 
                 gridTemplateColumns: 'repeat(3, 1fr)', 
-                gap: '24px',
-                height: 'calc(100% - 144px - 180px)' // Subtract KPI and AI sections
+                gap: '20px',
+                height: 'calc(100% - 184px - 160px)' // Subtract KPI and AI sections
               }}>
                 {/* Row 1 */}
-                <div style={{ height: '340px' }}>
+                <div style={{ height: '320px' }}>
                   <TransactionTrends />
                 </div>
                 
-                <div style={{ height: '340px' }}>
+                <div style={{ height: '320px' }}>
                   <ProductMix />
                 </div>
                 
-                <div style={{ height: '340px' }}>
+                <div style={{ height: '320px' }}>
                   <SKUInfo />
                 </div>
                 
                 {/* Row 2 */}
-                <div style={{ height: '340px' }}>
+                <div style={{ height: '320px' }}>
                   <ConsumerBehavior />
                 </div>
                 
-                <div style={{ height: '340px' }}>
+                <div style={{ height: '320px' }}>
                   <ConsumerProfiling />
                 </div>
                 
-                <div style={{ height: '340px' }}>
+                <div style={{ height: '320px' }}>
                   <GeospatialMap />
                 </div>
               </div>
               
               {/* AI Insights - Fixed Height at Bottom */}
-              <div style={{ height: '150px', marginTop: '24px' }}>
+              <div style={{ height: '140px', marginTop: '20px' }}>
                 <AIInsights filters={filters} />
               </div>
             </main>

@@ -77,11 +77,20 @@
   }
   
   .filter-pill {
-    @apply bg-blue-50 border border-primary rounded-full px-4 py-2 inline-flex items-center gap-2 cursor-pointer transition-all duration-200 hover:bg-blue-100;
+    @apply bg-gray-100 border border-transparent rounded-full px-4 py-2 inline-flex items-center gap-2 cursor-pointer transition-all duration-200;
+  }
+  
+  .filter-pill:hover {
+    @apply bg-gray-200 border-gray-300 shadow-sm;
+    transform: translateY(-1px);
+  }
+  
+  .filter-pill:active {
+    transform: translateY(0);
   }
   
   .filter-pill.active {
-    @apply bg-primary text-primary-foreground;
+    @apply bg-primary text-primary-foreground border-primary;
   }
   
   .status-dot {
@@ -107,14 +116,86 @@
   }
   
   .nav-item {
-    @apply flex items-center gap-3 p-3 rounded-lg transition-colors duration-200;
+    @apply flex items-center gap-3 p-3 rounded-lg transition-all duration-200;
   }
   
   .nav-item:hover {
-    @apply bg-muted;
+    @apply bg-muted shadow-sm;
+    transform: translateX(2px);
   }
   
   .nav-item.active {
-    @apply bg-primary text-primary-foreground;
+    @apply bg-primary text-primary-foreground shadow-md;
   }
+  
+  /* Card hover effects */
+  .card-interactive {
+    @apply transition-all duration-200;
+  }
+  
+  .card-interactive:hover {
+    @apply shadow-lg;
+    transform: translateY(-2px);
+  }
+  
+  /* Button enhancements */
+  button {
+    @apply transition-all duration-200;
+  }
+  
+  button:not(:disabled):hover {
+    transform: translateY(-1px);
+  }
+  
+  button:not(:disabled):active {
+    transform: translateY(0);
+  }
+  
+  /* Focus states */
+  button:focus-visible,
+  a:focus-visible,
+  .filter-pill:focus-visible {
+    @apply outline-2 outline-offset-2 outline-primary;
+  }
+  
+  /* Disabled states */
+  button:disabled,
+  .filter-pill:disabled {
+    @apply opacity-50 cursor-not-allowed;
+    transform: none !important;
+  }
+  
+  /* Loading animation */
+  @keyframes pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+  
+  .loading {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  /* Tooltip styles */
+  .tooltip {
+    @apply absolute z-50 bg-gray-900 text-white text-xs rounded px-2 py-1 pointer-events-none opacity-0 transition-opacity duration-200;
+  }
+  
+  .tooltip.show {
+    @apply opacity-100;
+  }
+}
+
+/* Chart hover effects */
+.recharts-bar-rectangle:hover {
+  opacity: 0.8;
+  cursor: pointer;
+}
+
+.recharts-pie-sector:hover {
+  transform: scale(1.05);
+  cursor: pointer;
 }
