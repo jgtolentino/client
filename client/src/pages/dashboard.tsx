@@ -8,6 +8,7 @@ import SKUInfo from "@/components/dashboard/sku-info";
 import ConsumerBehavior from "@/components/dashboard/consumer-behavior";
 import ConsumerProfiling from "@/components/dashboard/consumer-profiling";
 import GeospatialMap from "@/components/dashboard/geospatial-map";
+import TransactionMetrics from "@/components/dashboard/transaction-metrics";
 import AIInsights from "@/components/dashboard/ai-insights";
 import Footer from "@/components/dashboard/footer";
 import { useDashboardData } from "@/hooks/use-dashboard-data";
@@ -104,28 +105,33 @@ export default function Dashboard() {
                 height: 'calc(100% - 184px - 160px)' // Subtract KPI and AI sections
               }}>
                 {/* Row 1 */}
-                <div style={{ height: '320px' }}>
+                <div style={{ height: '300px' }}>
                   <TransactionTrends />
                 </div>
                 
-                <div style={{ height: '320px' }}>
+                <div style={{ height: '300px' }}>
                   <ProductMix />
                 </div>
                 
-                <div style={{ height: '320px' }}>
+                <div style={{ height: '300px' }}>
                   <SKUInfo />
                 </div>
                 
                 {/* Row 2 */}
-                <div style={{ height: '320px' }}>
+                <div style={{ height: '300px' }}>
                   <ConsumerBehavior />
                 </div>
                 
-                <div style={{ height: '320px' }}>
+                <div style={{ height: '300px' }}>
                   <ConsumerProfiling />
                 </div>
                 
-                <div style={{ height: '320px' }}>
+                <div style={{ height: '300px' }}>
+                  <TransactionMetrics />
+                </div>
+                
+                {/* Row 3 */}
+                <div style={{ height: '300px', gridColumn: 'span 3' }}>
                   <GeospatialMap />
                 </div>
               </div>

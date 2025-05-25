@@ -73,14 +73,26 @@ const fetchRealData = async (endpoint: string) => {
 };
 
 export function useDashboardData() {
-  const [useRealData, setUseRealData] = useState(false);
+  const [useRealData, setUseRealData] = useState(true); // Default to real data
+
+  // Fetch the full dashboard data
+  const { 
+    data: dashboardData, 
+    isLoading: dataLoading 
+  } = useQuery({
+    queryKey: ["dashboard-data"],
+    queryFn: () => fetchRealData("dashboard_data")
+  });
 
   const { 
     data: kpiMetrics, 
     isLoading: kpiLoading 
   } = useQuery<KPIMetrics>({
-    queryKey: ["kpi"],
-    queryFn: () => fetchRealData("dashboard_data").then(data => {
+    queryKey: ["kpi", dashboardData],
+    queryFn: () => {
+      if (!dashboardData) return generateMockKPIMetrics();
+      
+      const data = dashboardData;
       // Transform comprehensive real data to KPI format
       // Count the number of transaction records (not sum of units)
       const transactions = data.transaction_trends?.length || 0;
@@ -254,6 +266,7 @@ export function useDashboardData() {
                     trendLoading || insightsLoading || basketLoading || substitutionLoading || profilingLoading;
 
   return {
+    dashboardData, // Expose full data for components to use
     kpiMetrics,
     locationData,
     categoryData,
@@ -263,6 +276,7 @@ export function useDashboardData() {
     basketData,
     substitutionData,
     consumerProfilingData,
+    behaviorData: dashboardData?.consumer_behavior, // Add behavior data
     isLoading,
   };
 }
