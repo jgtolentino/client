@@ -2,6 +2,9 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import type { KPIMetrics, LocationData, CategoryData, BrandData, TrendData, AIInsight } from "@shared/schema";
 
+// Determine if we should use API or static data
+const USE_API = process.env.NODE_ENV === 'production' || window.location.hostname !== 'localhost';
+
 // Mock data generators
 const generateMockKPIMetrics = (): KPIMetrics => ({
   transactions: 8542,
@@ -67,6 +70,14 @@ const generateMockAIInsights = (): AIInsight[] => [
 
 // Data fetchers
 const fetchRealData = async (endpoint: string) => {
+  // Use API endpoint in production or when configured
+  if (USE_API && endpoint === "dashboard_data") {
+    const response = await fetch(`/api/dashboard-data`);
+    if (!response.ok) throw new Error(`Failed to fetch ${endpoint} from API`);
+    return response.json();
+  }
+  
+  // Fallback to static JSON files
   const response = await fetch(`/data/${endpoint}.json`);
   if (!response.ok) throw new Error(`Failed to fetch ${endpoint}`);
   return response.json();

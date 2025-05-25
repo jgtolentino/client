@@ -2,10 +2,15 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { healthCheck } from "./health";
+import { getDashboardData, getDashboardDataSubset } from "./routes/dashboard-data";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Health check endpoint
   app.get("/api/health", healthCheck);
+
+  // Dashboard data endpoints (Azure Blob Storage)
+  app.get("/api/dashboard-data", getDashboardData);
+  app.get("/api/dashboard-data/subset", getDashboardDataSubset);
 
   // Dashboard analytics endpoints
   app.get("/api/dashboard/kpi", async (req, res) => {
