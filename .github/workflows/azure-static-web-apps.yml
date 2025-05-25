@@ -43,6 +43,18 @@ jobs:
           find ./dist/public -type f | wc -l
           echo "Large files (>10MB):"
           find ./dist/public -type f -size +10M -exec ls -lh {} \;
+          echo "Checking for problematic file names:"
+          find ./dist/public -type f -name "*Icon*" -o -name ".*" | head -20
+          echo "Total size in bytes:"
+          du -sb ./dist/public | cut -f1
+
+      - name: Clean problematic files
+        run: |
+          # Remove any Icon files that might cause issues
+          find ./dist/public -name "*Icon*" -type f -delete 2>/dev/null || true
+          find ./dist/public -name ".*" -type f -delete 2>/dev/null || true
+          echo "Cleaned file count:"
+          find ./dist/public -type f | wc -l
 
       - name: Build And Deploy
         id: builddeploy
@@ -51,9 +63,9 @@ jobs:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
-          app_location: "dist/public"
+          app_location: "/"
           api_location: "" 
-          output_location: ""
+          output_location: "dist/public"
           skip_app_build: true
 
   close_pull_request_job:
