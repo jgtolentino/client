@@ -33,15 +33,86 @@ category_map = {
     "CDO": "Food",
     "San Miguel": "Beverages",
     "Alaska": "Dairy",
-    "Monde": "Snacks"
-    # add more mapping as needed
+    "Monde": "Snacks",
+    "Pride": "Household",
+    "Champion": "Household",
+    "Downy": "Household",
+    "Tide": "Household",
+    "Ariel": "Household",
+    "Safeguard": "Personal Care",
+    "Dove": "Personal Care",
+    "Nescafe": "Beverages",
+    "Bear Brand": "Dairy",
+    "Magnolia": "Dairy",
+    "Purefoods": "Food",
+    "Tender Juicy": "Food",
+    "Argentina": "Food",
+    "Century": "Food",
+    "Ligo": "Food",
+    "555": "Food",
+    "Mega": "Food",
+    "Spam": "Food",
+    "Milo": "Beverages",
+    "Ovaltine": "Beverages",
+    "Tang": "Beverages",
+    "Eight O'Clock": "Beverages",
+    "Great Taste": "Beverages",
+    "Cream-O": "Snacks",
+    "Skyflakes": "Snacks",
+    "Fita": "Snacks",
+    "Chippy": "Snacks",
+    "Clover": "Snacks",
+    "Nissin": "Noodles",
+    "Yakisoba": "Noodles",
+    "Payless": "Noodles",
+    "Magic": "Condiments",
+    "Knorr": "Condiments",
+    "Maggi": "Condiments",
+    "Ajinomoto": "Condiments",
+    "Silver Swan": "Condiments",
+    "Datu Puti": "Condiments",
+    "UFC": "Condiments",
+    "Papa": "Condiments",
+    "Lorins": "Condiments",
+    "Clara Ole": "Condiments"
+}
+
+# Enhanced category keywords for better matching
+category_keywords = {
+    "Snacks": ["Chips", "Crackers", "Biscuit", "Cookie", "Pretzel", "Popcorn"],
+    "Beverages": ["Juice", "Coffee", "Tea", "Soda", "Drink", "Water"],
+    "Food": ["Meat", "Corned", "Tuna", "Sardines", "Loaf", "Sausage"],
+    "Household": ["Detergent", "Soap", "Cleaner", "Fabric", "Dishwashing"],
+    "Personal Care": ["Shampoo", "Toothpaste", "Deodorant", "Lotion", "Cream"],
+    "Dairy": ["Milk", "Cheese", "Yogurt", "Butter"],
+    "Noodles": ["Instant", "Pancit", "Pasta", "Spaghetti"],
+    "Condiments": ["Sauce", "Vinegar", "Soy", "Ketchup", "Mayo"]
 }
 
 def assign_category(brand):
+    # First check exact brand mapping
     for key in category_map:
-        if key in brand:
+        if key.lower() in brand.lower():
             return category_map[key]
-    return "General"
+    
+    # Then check category keywords
+    brand_lower = brand.lower()
+    for category, keywords in category_keywords.items():
+        for keyword in keywords:
+            if keyword.lower() in brand_lower:
+                return category
+    
+    # Default categories based on common patterns
+    if any(word in brand_lower for word in ["sweet", "candy", "gum", "chocolate"]):
+        return "Confectionery"
+    elif any(word in brand_lower for word in ["oil", "butter", "margarine"]):
+        return "Cooking Essentials"
+    elif any(word in brand_lower for word in ["diaper", "tissue", "napkin"]):
+        return "Paper Products"
+    elif any(word in brand_lower for word in ["vitamin", "medicine", "supplement"]):
+        return "Health & Wellness"
+    
+    return "Grocery Items"  # More specific than "General"
 
 N = 500  # number of records per main section
 

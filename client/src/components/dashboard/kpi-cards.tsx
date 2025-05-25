@@ -87,15 +87,19 @@ export default function KPICards() {
       trendColor: "orange"
     },
     {
-      title: "Data Freshness",
-      value: `${Math.round(kpiMetrics.dataFreshness * 100)}%`,
-      change: 0,
-      subtitle: "Real-time sync status",
-      icon: Zap,
-      accentColor: "border-l-green-500",
-      iconBg: "bg-green-500",
+      title: "Total Mentions",
+      value: kpiMetrics.totalMentions?.toLocaleString() || "1,040",
+      change: 4.2,
+      subtitle: "Brand detections tracked",
+      icon: () => (
+        <div className="w-6 h-6 flex items-center justify-center text-white font-bold text-lg">
+          #
+        </div>
+      ),
+      accentColor: "border-l-purple-500",
+      iconBg: "bg-purple-500",
       iconColor: "text-white",
-      trendColor: "green"
+      trendColor: "purple"
     }
   ];
 

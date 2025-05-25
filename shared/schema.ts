@@ -55,6 +55,7 @@ export interface KPIMetrics {
   avgValue: number;
   substitutionRate: number;
   dataFreshness: number;
+  totalMentions?: number;
   trendsData: { label: string; value: number; change?: number }[];
 }
 

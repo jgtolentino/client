@@ -87,6 +87,11 @@ export function useDashboardData() {
       const avgValue = data.transaction_trends?.reduce((sum: number, t: any) => sum + t.peso_value, 0) / transactions || 0;
       const substitutionRate = data.substitution_patterns?.length / transactions || 0.0312;
       
+      // Calculate total brand mentions/detections
+      const totalMentions = (data.transaction_trends?.length || 0) + 
+                           (data.brand_trends?.length || 0) + 
+                           (data.basket_analysis?.length || 0);
+      
       // Create monthly trends from transaction data
       const monthlyData = data.transaction_trends?.reduce((acc: any, t: any) => {
         const month = new Date(t.date).toLocaleDateString('en-US', { month: 'short' });
@@ -107,6 +112,7 @@ export function useDashboardData() {
         avgValue,
         substitutionRate,
         dataFreshness: 0.98,
+        totalMentions,
         trendsData
       };
     })

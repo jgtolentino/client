@@ -218,22 +218,23 @@ export default function ProductMix() {
         <CardContent>
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={brandData?.slice(0, 8)} layout="horizontal">
+              <BarChart data={brandData?.slice(0, 8)}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                 <XAxis 
-                  type="number" 
+                  dataKey="brand"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 11, fill: '#666' }}
+                  interval={0}
+                  angle={-45}
+                  textAnchor="end"
+                  height={60}
+                />
+                <YAxis 
                   axisLine={false}
                   tickLine={false}
                   tick={{ fontSize: 12, fill: '#666' }}
                   tickFormatter={(value) => `₱${(value / 1000000).toFixed(1)}M`}
-                />
-                <YAxis 
-                  dataKey="brand" 
-                  type="category"
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fontSize: 12, fill: '#666' }}
-                  width={100}
                 />
                 <Tooltip 
                   formatter={(value: any) => [`₱${value.toLocaleString()}`, 'Sales']}
@@ -242,7 +243,7 @@ export default function ProductMix() {
                 <Bar 
                   dataKey="sales" 
                   fill="#3b82f6"
-                  radius={[0, 8, 8, 0]}
+                  radius={[8, 8, 0, 0]}
                   animationDuration={1000}
                 />
               </BarChart>
