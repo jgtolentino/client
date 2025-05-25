@@ -92,20 +92,31 @@ export function useDashboardData() {
                            (data.brand_trends?.length || 0) + 
                            (data.basket_analysis?.length || 0);
       
-      // Create monthly trends from transaction data
-      const monthlyData = data.transaction_trends?.reduce((acc: any, t: any) => {
-        const month = new Date(t.date).toLocaleDateString('en-US', { month: 'short' });
-        if (!acc[month]) acc[month] = { total: 0, count: 0 };
-        acc[month].total += t.peso_value;
-        acc[month].count += 1;
-        return acc;
-      }, {}) || {};
-      
-      const trendsData = Object.entries(monthlyData).map(([month, data]: [string, any]) => ({
-        label: month,
-        value: Math.round(data.total / data.count),
-        change: Math.random() * 20 - 10 // Could calculate real change if needed
-      }));
+      // Use hourly patterns if available in enhanced data
+      let trendsData;
+      if (data.time_patterns && data.time_patterns.hourly_patterns) {
+        trendsData = data.time_patterns.hourly_patterns.map((pattern: any) => ({
+          label: pattern.time_label,
+          value: Math.round(parseFloat(pattern.total_revenue)),
+          change: pattern.is_peak ? 10 : -5,
+          isPeak: pattern.is_peak
+        }));
+      } else {
+        // Fallback to monthly trends
+        const monthlyData = data.transaction_trends?.reduce((acc: any, t: any) => {
+          const month = new Date(t.date).toLocaleDateString('en-US', { month: 'short' });
+          if (!acc[month]) acc[month] = { total: 0, count: 0 };
+          acc[month].total += t.peso_value;
+          acc[month].count += 1;
+          return acc;
+        }, {}) || {};
+        
+        trendsData = Object.entries(monthlyData).map(([month, data]: [string, any]) => ({
+          label: month,
+          value: Math.round(data.total / data.count),
+          change: Math.random() * 20 - 10
+        }));
+      }
 
       return {
         transactions,
@@ -196,7 +207,23 @@ export function useDashboardData() {
     isLoading: insightsLoading 
   } = useQuery<AIInsight[]>({
     queryKey: ["insights"],
-    queryFn: () => Promise.resolve(generateMockAIInsights())
+    queryFn: () => fetchRealData("dashboard_data").then(data => {
+      // Use AI insights from the enhanced data if available
+      if (data.ai_insights && data.ai_insights.length > 0) {
+        return data.ai_insights.map((insight: any) => ({
+          id: insight.insight_id,
+          type: insight.type === 'opportunity' ? 'info' : insight.type === 'anomaly' ? 'warning' : 'error',
+          title: insight.message.split(' ').slice(0, 5).join(' ') + '...',
+          description: insight.message,
+          impact: insight.severity,
+          timestamp: new Date().toISOString(),
+          recommendation: insight.recommendation,
+          confidence: insight.confidence_score
+        }));
+      }
+      // Fallback to generated insights
+      return generateMockAIInsights();
+    })
   });
 
   const { 
