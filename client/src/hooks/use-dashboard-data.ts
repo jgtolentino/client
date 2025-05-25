@@ -82,6 +82,7 @@ export function useDashboardData() {
     queryKey: ["kpi"],
     queryFn: () => fetchRealData("dashboard_data").then(data => {
       // Transform comprehensive real data to KPI format
+      // Count the number of transaction records (not sum of units)
       const transactions = data.transaction_trends?.length || 0;
       const avgValue = data.transaction_trends?.reduce((sum: number, t: any) => sum + t.peso_value, 0) / transactions || 0;
       const substitutionRate = data.substitution_patterns?.length / transactions || 0.0312;
