@@ -27,5 +27,54 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    // Fix bundle size issues
+    chunkSizeWarningLimit: 1000, // Increase limit to 1MB
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Split React vendor code
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          // Split chart libraries
+          'chart-vendor': ['recharts', 'victory-vendor'],
+          // Split UI component libraries
+          'ui-vendor': [
+            '@radix-ui/react-dialog',
+            '@radix-ui/react-dropdown-menu',
+            '@radix-ui/react-popover',
+            '@radix-ui/react-tooltip',
+            '@radix-ui/react-progress',
+            '@radix-ui/react-tabs',
+            '@radix-ui/react-switch',
+            '@radix-ui/react-scroll-area'
+          ],
+          // Split utility libraries
+          'util-vendor': ['clsx', 'class-variance-authority', 'tailwind-merge'],
+          // Split map libraries (if any)
+          'map-vendor': ['leaflet', 'react-leaflet'],
+          // Split query libraries
+          'query-vendor': ['@tanstack/react-query'],
+          // Split icon libraries
+          'icon-vendor': ['lucide-react']
+        }
+      }
+    },
+    // Optimize for production
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true, // Remove console.logs in production
+        drop_debugger: true,
+      },
+    },
+  },
+  // Optimize dependencies
+  optimizeDeps: {
+    include: [
+      'react',
+      'react-dom',
+      'recharts',
+      '@tanstack/react-query',
+      'lucide-react'
+    ],
   },
 });

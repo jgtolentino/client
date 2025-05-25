@@ -1,17 +1,19 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import Sidebar from "@/components/dashboard/sidebar";
 import TopBar from "@/components/dashboard/top-bar";
 import KPICards from "@/components/dashboard/kpi-cards";
-import TransactionTrends from "@/components/dashboard/transaction-trends";
-import ProductMix from "@/components/dashboard/product-mix";
-import SKUInfo from "@/components/dashboard/sku-info";
-import ConsumerBehavior from "@/components/dashboard/consumer-behavior";
-import ConsumerProfiling from "@/components/dashboard/consumer-profiling";
-import GeospatialMap from "@/components/dashboard/geospatial-map";
-import TransactionMetrics from "@/components/dashboard/transaction-metrics";
-import AIInsights from "@/components/dashboard/ai-insights";
 import Footer from "@/components/dashboard/footer";
 import { useDashboardData } from "@/hooks/use-dashboard-data";
+
+// Lazy load heavy components to reduce initial bundle size
+const TransactionTrends = lazy(() => import("@/components/dashboard/transaction-trends"));
+const ProductMix = lazy(() => import("@/components/dashboard/product-mix"));
+const SKUInfo = lazy(() => import("@/components/dashboard/sku-info"));
+const ConsumerBehavior = lazy(() => import("@/components/dashboard/consumer-behavior"));
+const ConsumerProfiling = lazy(() => import("@/components/dashboard/consumer-profiling"));
+const GeospatialMap = lazy(() => import("@/components/dashboard/geospatial-map"));
+const TransactionMetrics = lazy(() => import("@/components/dashboard/transaction-metrics"));
+const AIInsights = lazy(() => import("@/components/dashboard/ai-insights"));
 
 export default function Dashboard() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -106,39 +108,55 @@ export default function Dashboard() {
               }}>
                 {/* Row 1 */}
                 <div style={{ height: '300px' }}>
-                  <TransactionTrends />
+                  <Suspense fallback={<div className="flex items-center justify-center h-full"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div></div>}>
+                    <TransactionTrends />
+                  </Suspense>
                 </div>
                 
                 <div style={{ height: '300px' }}>
-                  <ProductMix />
+                  <Suspense fallback={<div className="flex items-center justify-center h-full"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div></div>}>
+                    <ProductMix />
+                  </Suspense>
                 </div>
                 
                 <div style={{ height: '300px' }}>
-                  <SKUInfo />
+                  <Suspense fallback={<div className="flex items-center justify-center h-full"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div></div>}>
+                    <SKUInfo />
+                  </Suspense>
                 </div>
                 
                 {/* Row 2 */}
                 <div style={{ height: '300px' }}>
-                  <ConsumerBehavior />
+                  <Suspense fallback={<div className="flex items-center justify-center h-full"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div></div>}>
+                    <ConsumerBehavior />
+                  </Suspense>
                 </div>
                 
                 <div style={{ height: '300px' }}>
-                  <ConsumerProfiling />
+                  <Suspense fallback={<div className="flex items-center justify-center h-full"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div></div>}>
+                    <ConsumerProfiling />
+                  </Suspense>
                 </div>
                 
                 <div style={{ height: '300px' }}>
-                  <TransactionMetrics />
+                  <Suspense fallback={<div className="flex items-center justify-center h-full"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div></div>}>
+                    <TransactionMetrics />
+                  </Suspense>
                 </div>
                 
                 {/* Row 3 */}
                 <div style={{ height: '300px', gridColumn: 'span 3' }}>
-                  <GeospatialMap />
+                  <Suspense fallback={<div className="flex items-center justify-center h-full"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div></div>}>
+                    <GeospatialMap />
+                  </Suspense>
                 </div>
               </div>
               
               {/* AI Insights - Fixed Height at Bottom */}
               <div style={{ height: '140px', marginTop: '20px' }}>
-                <AIInsights filters={filters} />
+                <Suspense fallback={<div className="flex items-center justify-center h-full"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div></div>}>
+                  <AIInsights filters={filters} />
+                </Suspense>
               </div>
             </main>
             
