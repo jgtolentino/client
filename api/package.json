@@ -2,18 +2,14 @@
   "name": "client-api-functions",
   "version": "1.0.0",
   "description": "Azure Functions API for client app",
-  "main": "dist/index.js",
+  "main": "index.js",
   "scripts": {
-    "build": "tsc",
-    "watch": "tsc -w",
-    "prestart": "npm run build",
     "start": "func start"
   },
   "dependencies": {
-    "@azure/functions": "^3.0.0"
+    "@azure/functions": "^4.0.0"
   },
-  "devDependencies": {
-    "@types/node": "18.x",
-    "typescript": "^5.0.0"
+  "engines": {
+    "node": "18.x"
   }
 }
