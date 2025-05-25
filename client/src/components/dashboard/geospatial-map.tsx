@@ -52,9 +52,10 @@ export default function GeospatialMap() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="map-container bg-gradient-to-br from-blue-50 to-blue-100 border border-gray-200 rounded-lg flex items-center justify-center relative overflow-hidden">
-            {/* Enhanced Philippine GeoJSON Map */}
-            <div className="relative w-full h-full flex items-center justify-center">
+          {/* Clean map container with proper spacing */}
+          <div className="relative bg-gradient-to-br from-blue-50 to-blue-100 border border-gray-200 rounded-lg h-80 overflow-hidden">
+            {/* Philippine Map - Clean, no overlapping text */}
+            <div className="relative w-full h-full">
               <svg viewBox="119 5 9 14" className="w-full h-full" preserveAspectRatio="xMidYMid meet">
                 {/* Render Philippine regions */}
                 {philippineGeoJSON.features.map((feature, index) => {
@@ -74,13 +75,13 @@ export default function GeospatialMap() {
                   );
                 })}
                 
-                {/* Location markers with accurate coordinates */}
+                {/* Clean location markers - no text overlap */}
                 {locationData?.map((location) => {
                   const coords = philippineCities[location.location as keyof typeof philippineCities];
                   if (!coords) return null;
                   
                   const [lat, lng] = coords;
-                  const size = Math.sqrt(location.transactions) * 0.05 + 0.1;
+                  const size = Math.sqrt(location.transactions) * 0.03 + 0.08; // Smaller, cleaner bubbles
                   
                   return (
                     <g key={location.location}>
@@ -88,39 +89,23 @@ export default function GeospatialMap() {
                         cx={lng}
                         cy={lat}
                         r={size}
-                        fill="hsl(var(--scout-blue))"
+                        fill="#3b82f6"
                         opacity={0.8}
                         className="cursor-pointer hover:opacity-100 transition-opacity"
                       />
-                      <text
-                        x={lng}
-                        y={lat - size - 0.2}
-                        textAnchor="middle"
-                        className="text-xs font-medium fill-gray-700"
-                        fontSize="0.4"
-                      >
-                        {location.location}
-                      </text>
-                      <text
-                        x={lng}
-                        y={lat - size - 0.5}
-                        textAnchor="middle"
-                        className="text-xs fill-gray-600 font-bold"
-                        fontSize="0.3"
-                      >
-                        {location.transactions}
-                      </text>
+                      {/* Only show city name on hover or remove completely */}
+                      <title>{location.location}: {location.transactions} transactions</title>
                     </g>
                   );
                 })}
               </svg>
             </div>
             
-            {/* Map Legend */}
-            <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm p-3 rounded-lg shadow-sm">
-              <div className="flex items-center gap-2 text-xs">
-                <MapPin className="w-3 h-3 text-primary" />
-                <span className="text-gray-600">Transaction Volume</span>
+            {/* Clean legend - minimal and unobtrusive */}
+            <div className="absolute bottom-4 left-4 bg-white/95 backdrop-blur-sm px-3 py-2 rounded-lg shadow-sm border">
+              <div className="flex items-center gap-2 text-xs text-gray-600">
+                <div className="w-3 h-3 bg-blue-500 rounded-full opacity-80"></div>
+                <span>Transaction Volume</span>
               </div>
             </div>
           </div>
