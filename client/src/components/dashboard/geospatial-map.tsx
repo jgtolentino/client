@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { MoreHorizontal, TrendingUp, TrendingDown, MapPin } from "lucide-react";
+import { MoreHorizontal, TrendingUp, TrendingDown } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useDashboardData } from "@/hooks/use-dashboard-data";
 import { Skeleton } from "@/components/ui/skeleton";
-import { philippineGeoJSON, philippineCities } from "@/lib/ph-geojson";
+import TransactionMap from "./transaction-map";
 
 export default function GeospatialMap() {
   const [mapView, setMapView] = useState("Density");
@@ -33,84 +33,19 @@ export default function GeospatialMap() {
 
   return (
     <div className="space-y-6">
-      {/* Geospatial Map */}
+      {/* Interactive OpenStreetMap */}
+      <TransactionMap />
+      
+      {/* Location Data Table */}
       <Card className="shadow-sm border border-gray-200">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-          <CardTitle className="text-lg font-semibold">Consumer Distribution</CardTitle>
-          <div className="flex items-center gap-2">
-            <Button 
-              size="sm" 
-              variant={mapView === "Density" ? "default" : "outline"}
-              onClick={toggleMapView}
-              className="text-xs"
-            >
-              {mapView}
-            </Button>
-            <Button variant="ghost" size="sm">
-              <MoreHorizontal className="w-5 h-5" />
-            </Button>
-          </div>
+          <CardTitle className="text-lg font-semibold">Location Performance</CardTitle>
+          <Button variant="ghost" size="sm">
+            <MoreHorizontal className="w-5 h-5" />
+          </Button>
         </CardHeader>
         <CardContent>
-          {/* Clean map container with proper spacing */}
-          <div className="relative bg-gradient-to-br from-blue-50 to-blue-100 border border-gray-200 rounded-lg h-80 overflow-hidden">
-            {/* Philippine Map - Clean, no overlapping text */}
-            <div className="relative w-full h-full">
-              <svg viewBox="119 5 9 14" className="w-full h-full" preserveAspectRatio="xMidYMid meet">
-                {/* Render Philippine regions */}
-                {philippineGeoJSON.features.map((feature, index) => {
-                  const pathData = feature.geometry.coordinates[0]
-                    .map((coord, i) => `${i === 0 ? 'M' : 'L'} ${coord[0]} ${coord[1]}`)
-                    .join(' ') + ' Z';
-                  
-                  return (
-                    <path
-                      key={feature.properties.name}
-                      d={pathData}
-                      fill="rgba(34, 97, 211, 0.15)"
-                      stroke="rgba(34, 97, 211, 0.4)"
-                      strokeWidth="0.05"
-                      className="cursor-pointer hover:fill-opacity-30 transition-all"
-                    />
-                  );
-                })}
-                
-                {/* Clean location markers - no text overlap */}
-                {locationData?.map((location) => {
-                  const coords = philippineCities[location.location as keyof typeof philippineCities];
-                  if (!coords) return null;
-                  
-                  const [lat, lng] = coords;
-                  const size = Math.sqrt(location.transactions) * 0.03 + 0.08; // Smaller, cleaner bubbles
-                  
-                  return (
-                    <g key={location.location}>
-                      <circle
-                        cx={lng}
-                        cy={lat}
-                        r={size}
-                        fill="#3b82f6"
-                        opacity={0.8}
-                        className="cursor-pointer hover:opacity-100 transition-opacity"
-                      />
-                      {/* Only show city name on hover or remove completely */}
-                      <title>{location.location}: {location.transactions} transactions</title>
-                    </g>
-                  );
-                })}
-              </svg>
-            </div>
-            
-            {/* Clean legend - minimal and unobtrusive */}
-            <div className="absolute bottom-4 left-4 bg-white/95 backdrop-blur-sm px-3 py-2 rounded-lg shadow-sm border">
-              <div className="flex items-center gap-2 text-xs text-gray-600">
-                <div className="w-3 h-3 bg-blue-500 rounded-full opacity-80"></div>
-                <span>Transaction Volume</span>
-              </div>
-            </div>
-          </div>
-          
-          <div className="mt-4 space-y-3">
+          <div className="space-y-3">
             <div className="flex items-center justify-between text-sm font-medium text-gray-700 border-b pb-2">
               <span>Location</span>
               <span>Transaction Volume</span>
