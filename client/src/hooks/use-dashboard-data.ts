@@ -192,7 +192,32 @@ export function useDashboardData() {
     queryFn: () => Promise.resolve(generateMockAIInsights())
   });
 
-  const isLoading = kpiLoading || locationLoading || categoryLoading || brandLoading || trendLoading || insightsLoading;
+  const { 
+    data: basketData, 
+    isLoading: basketLoading 
+  } = useQuery({
+    queryKey: ["basket"],
+    queryFn: () => fetchRealData("dashboard_data").then(data => data.basket_analysis || [])
+  });
+
+  const { 
+    data: substitutionData, 
+    isLoading: substitutionLoading 
+  } = useQuery({
+    queryKey: ["substitution"],
+    queryFn: () => fetchRealData("dashboard_data").then(data => data.substitution_patterns || [])
+  });
+
+  const { 
+    data: consumerProfilingData, 
+    isLoading: profilingLoading 
+  } = useQuery({
+    queryKey: ["profiling"],
+    queryFn: () => fetchRealData("dashboard_data").then(data => data.consumer_profiling || [])
+  });
+
+  const isLoading = kpiLoading || locationLoading || categoryLoading || brandLoading || 
+                    trendLoading || insightsLoading || basketLoading || substitutionLoading || profilingLoading;
 
   return {
     kpiMetrics,
@@ -201,6 +226,9 @@ export function useDashboardData() {
     brandData,
     trendData,
     aiInsights,
+    basketData,
+    substitutionData,
+    consumerProfilingData,
     isLoading,
   };
 }

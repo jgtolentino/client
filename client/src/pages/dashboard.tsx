@@ -4,6 +4,9 @@ import TopBar from "@/components/dashboard/top-bar";
 import KPICards from "@/components/dashboard/kpi-cards";
 import TransactionTrends from "@/components/dashboard/transaction-trends";
 import ProductMix from "@/components/dashboard/product-mix";
+import SKUInfo from "@/components/dashboard/sku-info";
+import ConsumerBehavior from "@/components/dashboard/consumer-behavior";
+import ConsumerProfiling from "@/components/dashboard/consumer-profiling";
 import GeospatialMap from "@/components/dashboard/geospatial-map";
 import AIInsights from "@/components/dashboard/ai-insights";
 import Footer from "@/components/dashboard/footer";
@@ -38,8 +41,10 @@ export default function Dashboard() {
         />
         
         <main className="flex-1 overflow-auto p-6 bg-background">
+          {/* KPI Cards */}
           <KPICards />
           
+          {/* Core Modules Row 1 */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
             <div className="lg:col-span-1">
               <TransactionTrends />
@@ -50,11 +55,27 @@ export default function Dashboard() {
             </div>
             
             <div className="lg:col-span-1">
+              <SKUInfo />
+            </div>
+          </div>
+          
+          {/* Core Modules Row 2 */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+            <div className="lg:col-span-1">
+              <ConsumerBehavior />
+            </div>
+            
+            <div className="lg:col-span-1">
+              <ConsumerProfiling />
+            </div>
+            
+            <div className="lg:col-span-1">
               <GeospatialMap />
             </div>
           </div>
           
-          <AIInsights />
+          {/* AI Insights - Full Width */}
+          <AIInsights filters={filters} />
         </main>
         
         <Footer />
