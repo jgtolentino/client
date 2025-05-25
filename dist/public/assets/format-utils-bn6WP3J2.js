@@ -1,0 +1,1 @@
+const r=t=>`₱${t.toLocaleString("en-PH",{minimumFractionDigits:0,maximumFractionDigits:0})}`,o=(t,e=1)=>`${t.toFixed(e)}%`,n=t=>t>=1e6?`${(t/1e6).toFixed(1)}M`:t>=1e3?`${(t/1e3).toFixed(1)}K`:t.toString(),i=t=>new Date(t).toLocaleDateString("en-PH",{month:"short",day:"numeric"});export{i as a,r as b,o as c,n as f};
