@@ -4,16 +4,16 @@ import type { KPIMetrics, LocationData, CategoryData, BrandData, TrendData, AIIn
 
 // Mock data generators
 const generateMockKPIMetrics = (): KPIMetrics => ({
-  transactions: 12847,
-  avgValue: 2156.87,
-  substitutionRate: 0.0312,
-  dataFreshness: 0.95,
+  transactions: 8542,
+  avgValue: 1834.56,
+  substitutionRate: 0.0287,
+  dataFreshness: 0.92,
   trendsData: [
-    { label: "Jan", value: 8500, change: 12.3 },
-    { label: "Feb", value: 9200, change: 8.2 },
-    { label: "Mar", value: 10100, change: 9.8 },
-    { label: "Apr", value: 11300, change: 11.9 },
-    { label: "May", value: 12847, change: 13.7 }
+    { label: "Jan", value: 6800, change: 8.5 },
+    { label: "Feb", value: 7200, change: 5.9 },
+    { label: "Mar", value: 7850, change: 9.0 },
+    { label: "Apr", value: 8100, change: 3.2 },
+    { label: "May", value: 8542, change: 5.5 }
   ]
 });
 
