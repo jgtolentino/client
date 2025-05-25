@@ -33,9 +33,9 @@ export default defineConfig({
       output: {
         manualChunks: {
           // Split React vendor code
-          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'react-vendor': ['react', 'react-dom', 'wouter'],
           // Split chart libraries
-          'chart-vendor': ['recharts', 'victory-vendor'],
+          'chart-vendor': ['recharts'],
           // Split UI component libraries
           'ui-vendor': [
             '@radix-ui/react-dialog',
@@ -58,14 +58,8 @@ export default defineConfig({
         }
       }
     },
-    // Optimize for production
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true, // Remove console.logs in production
-        drop_debugger: true,
-      },
-    },
+    // Optimize for production  
+    minify: 'esbuild',
   },
   // Optimize dependencies
   optimizeDeps: {

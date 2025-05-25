@@ -138,7 +138,7 @@ export function useDashboardData() {
         totalMentions,
         trendsData
       };
-    })
+    }
   });
 
   const { 
