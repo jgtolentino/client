@@ -7,6 +7,7 @@ import ProductMix from "@/components/dashboard/product-mix";
 import GeospatialMap from "@/components/dashboard/geospatial-map";
 import AIInsights from "@/components/dashboard/ai-insights";
 import Footer from "@/components/dashboard/footer";
+import { useDashboardData } from "@/hooks/use-dashboard-data";
 
 export default function Dashboard() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -16,6 +17,8 @@ export default function Dashboard() {
     brand: "All Brands",
     category: "All Categories"
   });
+
+  const { useRealData, setUseRealData } = useDashboardData();
 
   const toggleSidebar = () => {
     setSidebarCollapsed(!sidebarCollapsed);
@@ -34,6 +37,8 @@ export default function Dashboard() {
           onToggleSidebar={toggleSidebar}
           filters={filters}
           onUpdateFilter={updateFilter}
+          useRealData={useRealData}
+          onToggleDataSource={setUseRealData}
         />
         
         <main className="flex-1 overflow-auto p-6 bg-background">

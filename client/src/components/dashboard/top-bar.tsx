@@ -1,5 +1,6 @@
-import { Menu, Calendar, MapPin, Tag, Grid3X3, Download, HelpCircle, User, ChevronDown } from "lucide-react";
+import { Menu, Calendar, MapPin, Tag, Grid3X3, Download, HelpCircle, User, ChevronDown, Database, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 
 interface TopBarProps {
   onToggleSidebar: () => void;
@@ -10,9 +11,11 @@ interface TopBarProps {
     category: string;
   };
   onUpdateFilter: (key: string, value: string) => void;
+  useRealData: boolean;
+  onToggleDataSource: (value: boolean) => void;
 }
 
-export default function TopBar({ onToggleSidebar, filters }: TopBarProps) {
+export default function TopBar({ onToggleSidebar, filters, useRealData, onToggleDataSource }: TopBarProps) {
   return (
     <header className="bg-white border-b border-gray-200 px-6 py-4">
       <div className="flex items-center justify-between">
@@ -52,18 +55,38 @@ export default function TopBar({ onToggleSidebar, filters }: TopBarProps) {
           </div>
         </div>
         
-        {/* Right: Actions */}
-        <div className="flex items-center gap-3">
-          <Button className="flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90">
-            <Download className="w-4 h-4" />
-            <span>Export</span>
-          </Button>
-          <Button variant="ghost" size="sm" className="p-2 hover:bg-muted rounded">
-            <HelpCircle className="w-5 h-5" />
-          </Button>
-          <Button variant="ghost" size="sm" className="p-2 hover:bg-muted rounded">
-            <User className="w-5 h-5" />
-          </Button>
+        {/* Right: Data Toggle and Actions */}
+        <div className="flex items-center gap-4">
+          {/* Data Source Toggle */}
+          <div className="flex items-center gap-3 px-3 py-2 bg-muted/50 rounded-lg border">
+            <div className="flex items-center gap-2 text-sm">
+              <Zap className={`w-4 h-4 ${!useRealData ? 'text-orange-500' : 'text-gray-400'}`} />
+              <span className="text-gray-600">Demo</span>
+            </div>
+            <Switch 
+              checked={useRealData}
+              onCheckedChange={onToggleDataSource}
+              className="data-[state=checked]:bg-blue-600"
+            />
+            <div className="flex items-center gap-2 text-sm">
+              <Database className={`w-4 h-4 ${useRealData ? 'text-blue-500' : 'text-gray-400'}`} />
+              <span className="text-gray-600">Live Data</span>
+            </div>
+          </div>
+          
+          {/* Actions */}
+          <div className="flex items-center gap-3">
+            <Button className="flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90">
+              <Download className="w-4 h-4" />
+              <span>Export</span>
+            </Button>
+            <Button variant="ghost" size="sm" className="p-2 hover:bg-muted rounded">
+              <HelpCircle className="w-5 h-5" />
+            </Button>
+            <Button variant="ghost" size="sm" className="p-2 hover:bg-muted rounded">
+              <User className="w-5 h-5" />
+            </Button>
+          </div>
         </div>
       </div>
     </header>
