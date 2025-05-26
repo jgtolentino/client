@@ -4,11 +4,11 @@
   "type": "module",
   "scripts": {
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
-    "dev:server": "NODE_ENV=development tsx server/index.ts",
+    "dev:server": "NODE_ENV=development tsx server/simple.ts",
     "dev:client": "vite",
     "build": "npm run build:client",
     "build:client": "vite build",
-    "start": "NODE_ENV=production tsx server/index.ts",
+    "start": "NODE_ENV=production tsx server/simple.ts",
     "preview": "vite preview",
     "lint": "eslint .",
     "validate": "./claude-validate-deployment.sh",
