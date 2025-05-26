@@ -35,7 +35,7 @@ export default function TransactionMap() {
         </span>
         <span className="text-xs text-gray-400">Last 30 days</span>
       </div>
-      <div className="flex-1 min-h-[300px] h-[320px] relative rounded-lg overflow-hidden">
+      <div className="flex-1 aspect-map relative rounded-lg overflow-hidden">
         <MapContainer
           center={[12.8797, 121.7740]} // Center of the Philippines
           zoom={6}

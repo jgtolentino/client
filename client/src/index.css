@@ -106,13 +106,11 @@
   }
   
   .chart-container {
-    @apply relative;
-    height: 300px;
+    @apply relative w-full h-full;
   }
   
   .map-container {
-    @apply rounded-lg overflow-hidden;
-    height: 400px;
+    @apply rounded-lg overflow-hidden w-full h-full;
   }
   
   .nav-item {
@@ -198,4 +196,12 @@
 .recharts-pie-sector:hover {
   transform: scale(1.05);
   cursor: pointer;
+}
+
+@layer utilities {
+  .aspect-dashboard { aspect-ratio: 16/10; }
+  .aspect-chart { aspect-ratio: 2/1; }
+  .aspect-kpi { aspect-ratio: 5/3; }
+  .aspect-map { aspect-ratio: 16/9; }
+  .aspect-card { aspect-ratio: 4/3; }
 }

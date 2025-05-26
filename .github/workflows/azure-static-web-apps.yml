@@ -55,6 +55,15 @@ jobs:
           find ./dist/public -name ".*" -type f -delete 2>/dev/null || true
           echo "Cleaned file count:"
           find ./dist/public -type f | wc -l
+          
+      - name: Verify index.html exists
+        run: |
+          if [ ! -f "./dist/public/index.html" ]; then
+            echo "ERROR: index.html not found in dist/public!"
+            exit 1
+          fi
+          echo "✅ index.html found at: ./dist/public/index.html"
+          echo "File size: $(ls -lh ./dist/public/index.html | awk '{print $5}')"
 
       - name: Build And Deploy
         id: builddeploy
@@ -67,6 +76,7 @@ jobs:
           api_location: "" 
           output_location: "dist/public"
           skip_app_build: true
+          skip_api_build: true
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
