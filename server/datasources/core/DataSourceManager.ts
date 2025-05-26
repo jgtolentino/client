@@ -9,6 +9,10 @@ import { BaseConnector } from './BaseConnector';
 import { MemoryConnector } from '../connectors/MemoryConnector';
 import { CSVConnector } from '../connectors/CSVConnector';
 import { RestAPIConnector } from '../connectors/RestAPIConnector';
+// Lazy load optional connectors to avoid dependency errors
+// import { ParquetConnector } from '../connectors/ParquetConnector';
+// import { PostgreSQLConnector } from '../connectors/PostgreSQLConnector';
+// import { MongoDBConnector } from '../connectors/MongoDBConnector';
 
 // Type for connector constructor
 type ConnectorConstructor = new (config: ConnectionConfig) => IDataConnector;
@@ -369,8 +373,100 @@ export class DataSourceManager {
       }
     });
 
-    // Additional connectors will be registered here as they're implemented
-    // this.registerConnectorType('postgresql', PostgreSQLConnector, { ... });
+    // Parquet connector - REQUIRES: npm install duckdb
+    // Uncomment after installing dependencies
+    /*
+    this.registerConnectorType('parquet', ParquetConnector, {
+      name: 'parquet',
+      displayName: 'Parquet File Connector',
+      description: 'Query Parquet files with DuckDB engine - supports local and cloud storage',
+      version: '1.0.0',
+      author: 'System',
+      icon: 'file-archive',
+      configSchema: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' },
+          name: { type: 'string' },
+          filePath: { type: 'string', description: 'Path to Parquet file or glob pattern' },
+          storageType: { 
+            type: 'string', 
+            enum: ['local', 'azure', 's3'],
+            description: 'Storage type for Parquet files'
+          },
+          azureConnectionString: { type: 'string', description: 'Azure Storage connection string' },
+          azureContainerName: { type: 'string', description: 'Azure container name' },
+          s3Bucket: { type: 'string', description: 'S3 bucket name' },
+          s3Region: { type: 'string', description: 'S3 region' },
+          s3AccessKeyId: { type: 'string', description: 'S3 access key ID' },
+          s3SecretAccessKey: { type: 'string', description: 'S3 secret access key' }
+        },
+        required: ['id', 'name']
+      }
+    });
+    */
+
+    // PostgreSQL connector - REQUIRES: npm install pg pg-query-stream
+    // Uncomment after installing dependencies
+    /*
+    this.registerConnectorType('postgresql', PostgreSQLConnector, {
+      name: 'postgresql',
+      displayName: 'PostgreSQL Database',
+      description: 'Connect to PostgreSQL databases with full SQL support',
+      version: '1.0.0',
+      author: 'System',
+      icon: 'database',
+      configSchema: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' },
+          name: { type: 'string' },
+          host: { type: 'string', description: 'Database host' },
+          port: { type: 'number', description: 'Database port (default: 5432)' },
+          database: { type: 'string', description: 'Database name' },
+          user: { type: 'string', description: 'Username' },
+          password: { type: 'string', description: 'Password' },
+          ssl: { 
+            type: ['boolean', 'object'],
+            description: 'SSL configuration'
+          },
+          connectionTimeoutMillis: { type: 'number', description: 'Connection timeout in milliseconds' },
+          max: { type: 'number', description: 'Maximum pool size' }
+        },
+        required: ['id', 'name', 'host', 'database', 'user', 'password']
+      }
+    });
+    */
+
+    // MongoDB connector - REQUIRES: npm install mongodb
+    // Uncomment after installing dependencies
+    /*
+    this.registerConnectorType('mongodb', MongoDBConnector, {
+      name: 'mongodb',
+      displayName: 'MongoDB Database',
+      description: 'Connect to MongoDB with aggregation pipeline support',
+      version: '1.0.0',
+      author: 'System',
+      icon: 'database',
+      configSchema: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' },
+          name: { type: 'string' },
+          connectionString: { type: 'string', description: 'MongoDB connection string' },
+          host: { type: 'string', description: 'MongoDB host' },
+          port: { type: 'number', description: 'MongoDB port (default: 27017)' },
+          database: { type: 'string', description: 'Database name' },
+          username: { type: 'string', description: 'Username' },
+          password: { type: 'string', description: 'Password' },
+          authSource: { type: 'string', description: 'Authentication database' },
+          replicaSet: { type: 'string', description: 'Replica set name' },
+          ssl: { type: 'boolean', description: 'Use SSL/TLS' }
+        },
+        required: ['id', 'name', 'database']
+      }
+    });
+    */
   }
 }
 

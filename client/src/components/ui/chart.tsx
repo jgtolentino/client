@@ -1,7 +1,5 @@
-"use client"
-
 import * as React from "react"
-import { ResponsiveContainer } from "recharts"
+import * as RechartsPrimitive from "recharts"
 
 import { cn } from "@/lib/utils"
 
@@ -69,7 +67,7 @@ ChartContainer.displayName = "Chart"
 
 const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
   const colorConfig = Object.entries(config).filter(
-    ([, config]) => config.theme || config.color
+    ([_, config]) => config.theme || config.color
   )
 
   if (!colorConfig.length) {
@@ -139,7 +137,7 @@ const ChartTooltipContent = React.forwardRef<
       }
 
       const [item] = payload
-      const key = `${labelKey || item?.dataKey || item?.name || "value"}`
+      const key = `${labelKey || item.dataKey || item.name || "value"}`
       const itemConfig = getPayloadConfigFromPayload(config, item, key)
       const value =
         !labelKey && typeof label === "string"
