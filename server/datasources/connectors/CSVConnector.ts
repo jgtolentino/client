@@ -275,9 +275,6 @@ export class CSVConnector extends BaseConnector {
     await this.loadCSVFile(filePath, tableName);
   }
 
-  getTables(): string[] {
-    return Array.from(this.data.keys());
-  }
 
   getTableData(tableName: string): any[] | undefined {
     return this.data.get(tableName);

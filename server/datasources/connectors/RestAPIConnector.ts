@@ -12,7 +12,7 @@ import {
   ConnectorMetadata
 } from '../core/types';
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
-import * as alasql from 'alasql';
+import alasql from 'alasql';
 import { RateLimiter } from 'limiter';
 
 interface RestAPIConfig extends ConnectionConfig {
