@@ -2,12 +2,10 @@ name: Azure Static Web Apps CI/CD
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   pull_request:
     types: [opened, synchronize, reopened, closed]
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
   build_and_deploy_job:
@@ -15,14 +13,12 @@ jobs:
     runs-on: ubuntu-latest
     name: Build and Deploy Job
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v3
         with:
           submodules: true
-          lfs: false
-          persist-credentials: false
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v3
         with:
           node-version: '18'
           cache: 'npm'
@@ -35,35 +31,71 @@ jobs:
 
       - name: Verify build output
         run: |
-          echo "Contents of dist/public directory:"
-          ls -la ./dist/public
-          echo "Build size:"
-          du -sh ./dist/public
-          echo "File count:"
-          find ./dist/public -type f | wc -l
-          echo "Large files (>10MB):"
-          find ./dist/public -type f -size +10M -exec ls -lh {} \;
-          echo "Checking for problematic file names:"
-          find ./dist/public -type f -name "*Icon*" -o -name ".*" | head -20
-          echo "Total size in bytes:"
-          du -sb ./dist/public | cut -f1
+          echo "=== Build Output Structure ==="
+          echo "Root directory:"
+          ls -la
+          echo ""
+          echo "Dist directory:"
+          ls -la dist/ || echo "dist/ not found"
+          echo ""
+          echo "Finding index.html:"
+          find . -name "index.html" -type f | head -10
+          echo ""
+          echo "=== Verifying deployment files ==="
+          if [ -f "dist/index.html" ]; then
+            echo "✅ dist/index.html found - deployment should work"
+          elif [ -f "dist/public/index.html" ]; then
+            echo "⚠️  index.html is in dist/public/ - using output_location: 'dist/public'"
+          else
+            echo "❌ No index.html found in expected locations"
+            exit 1
+          fi
 
       - name: Clean problematic files
         run: |
-          # Remove any Icon files that might cause issues
-          find ./dist/public -name "*Icon*" -type f -delete 2>/dev/null || true
-          find ./dist/public -name ".*" -type f -delete 2>/dev/null || true
-          echo "Cleaned file count:"
-          find ./dist/public -type f | wc -l
-          
-      - name: Verify index.html exists
+          # Remove files that cause deployment issues
+          find dist -name "*.map" -type f -delete || true
+          find dist -name ".DS_Store" -type f -delete || true
+          find dist -name "Thumbs.db" -type f -delete || true
+          find dist -name "Icon*" -type f -delete || true
+          find dist -name ".*" -type f -delete || true
+          # Remove any files over 100MB
+          find dist -type f -size +100M -delete || true
+          echo "Cleaned problematic files"
+
+      - name: Ensure deployment config
         run: |
-          if [ ! -f "./dist/public/index.html" ]; then
-            echo "ERROR: index.html not found in dist/public!"
-            exit 1
+          # Copy staticwebapp.config.json to the output directory if it exists
+          if [ -f "staticwebapp.config.json" ] && [ -f "dist/public/index.html" ]; then
+            cp staticwebapp.config.json dist/public/ || true
+            echo "✅ Copied staticwebapp.config.json to dist/public/"
+          elif [ -f "staticwebapp.config.json" ] && [ -f "dist/index.html" ]; then
+            cp staticwebapp.config.json dist/ || true
+            echo "✅ Copied staticwebapp.config.json to dist/"
           fi
-          echo "✅ index.html found at: ./dist/public/index.html"
-          echo "File size: $(ls -lh ./dist/public/index.html | awk '{print $5}')"
+
+      - name: Final pre-deployment check
+        run: |
+          echo "=== Final deployment readiness check ==="
+          echo "Files in dist/:"
+          ls -la dist/ | head -20
+          echo ""
+          if [ -d "dist/public" ]; then
+            echo "Files in dist/public/:"
+            ls -la dist/public/ | head -20
+            echo ""
+            echo "Total size of dist/public/:"
+            du -sh dist/public/
+            echo ""
+            echo "File count in dist/public/:"
+            find dist/public -type f | wc -l
+          fi
+          echo ""
+          echo "Total size of dist/:"
+          du -sh dist/
+          echo ""
+          echo "File count in dist/:"
+          find dist -type f | wc -l
 
       - name: Build And Deploy
         id: builddeploy
@@ -73,8 +105,7 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
           app_location: "/"
-          api_location: "" 
-          output_location: "dist/public"
+          output_location: "dist/public"  # Based on your current build output
           skip_app_build: true
           skip_api_build: true
 
@@ -84,7 +115,6 @@ jobs:
     name: Close Pull Request Job
     steps:
       - name: Close Pull Request
-        id: closepullrequest
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
