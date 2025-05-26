@@ -406,13 +406,11 @@ export class DataSourceManager {
     });
     */
 
-    // PostgreSQL connector - REQUIRES: npm install pg pg-query-stream
-    // Uncomment after installing dependencies
-    /*
-    this.registerConnectorType('postgresql', PostgreSQLConnector, {
-      name: 'postgresql',
-      displayName: 'PostgreSQL Database',
-      description: 'Connect to PostgreSQL databases with full SQL support',
+    // PostgreSQL/Azure SQL connector - REQUIRES: npm install mssql (already installed)
+    this.registerConnectorType('azure-sql', PostgreSQLConnector, {
+      name: 'azure-sql',
+      displayName: 'Azure SQL Database',
+      description: 'Connect to Azure SQL databases with full T-SQL support',
       version: '1.0.0',
       author: 'System',
       icon: 'database',
@@ -436,7 +434,6 @@ export class DataSourceManager {
         required: ['id', 'name', 'host', 'database', 'user', 'password']
       }
     });
-    */
 
     // MongoDB connector - REQUIRES: npm install mongodb
     // Uncomment after installing dependencies

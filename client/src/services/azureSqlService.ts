@@ -1,6 +1,6 @@
 
 // Azure SQL API service for TBWA retail data
-const AZURE_FUNCTIONS_BASE_URL = import.meta.env.VITE_AZURE_FUNCTIONS_URL || 'https://your-function-app.azurewebsites.net/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
 
 export interface AzureKPIData {
   total_revenue: number;
@@ -32,12 +32,10 @@ export interface AzureTransaction {
 }
 
 class AzureSqlService {
-  private async fetchFromAzure<T>(endpoint: string): Promise<T> {
-    const response = await fetch(`${AZURE_FUNCTIONS_BASE_URL}/${endpoint}`, {
+  private async fetchFromAzureSQL<T>(endpoint: string): Promise<T> {
+    const response = await fetch(`${API_BASE_URL}/azure-sql/${endpoint}`, {
       headers: {
-        'Content-Type': 'application/json',
-        // Add your Azure Function key if required
-        'x-functions-key': import.meta.env.VITE_AZURE_FUNCTION_KEY || ''
+        'Content-Type': 'application/json'
       }
     });
 
@@ -50,7 +48,7 @@ class AzureSqlService {
 
   async getKPIs(dateRange: string): Promise<AzureKPIData> {
     try {
-      return await this.fetchFromAzure<AzureKPIData>(`kpis/${dateRange}`);
+      return await this.fetchFromAzureSQL<AzureKPIData>(`kpis?days=${dateRange}`);
     } catch (error) {
       console.error('Failed to fetch KPIs from Azure SQL:', error);
       // Fallback to mock data if Azure is unavailable
@@ -69,7 +67,7 @@ class AzureSqlService {
 
   async getDailyTrends(dateRange: string): Promise<AzureTransactionTrend[]> {
     try {
-      return await this.fetchFromAzure<AzureTransactionTrend[]>(`trends/${dateRange}`);
+      return await this.fetchFromAzureSQL<AzureTransactionTrend[]>(`trends?days=${dateRange}`);
     } catch (error) {
       console.error('Failed to fetch trends from Azure SQL:', error);
       const { mockData } = await import('@/data/mockData');
@@ -79,7 +77,7 @@ class AzureSqlService {
 
   async getTopProducts(dateRange: string): Promise<AzureTopProduct[]> {
     try {
-      return await this.fetchFromAzure<AzureTopProduct[]>(`products/top/${dateRange}`);
+      return await this.fetchFromAzureSQL<AzureTopProduct[]>(`top-products?days=${dateRange}`);
     } catch (error) {
       console.error('Failed to fetch top products from Azure SQL:', error);
       const { mockData } = await import('@/data/mockData');
@@ -92,7 +90,7 @@ class AzureSqlService {
 
   async getRecentTransactions(): Promise<AzureTransaction[]> {
     try {
-      return await this.fetchFromAzure<AzureTransaction[]>('transactions/recent');
+      return await this.fetchFromAzureSQL<AzureTransaction[]>('transactions');
     } catch (error) {
       console.error('Failed to fetch transactions from Azure SQL:', error);
       const { mockData } = await import('@/data/mockData');

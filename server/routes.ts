@@ -3,6 +3,16 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { healthCheck } from "./health";
 import { getDashboardData, getDashboardDataSubset } from "./routes/dashboard-data";
+import { getParquetData, getParquetMetadata } from "./routes/parquet-data";
+import { 
+  getTransactions, 
+  getBrandPerformance, 
+  getLocationAnalytics, 
+  getKPIMetrics as getAzureSQLKPIs,
+  getTrendData,
+  executeCustomQuery,
+  getDatasetMetadata
+} from "./routes/azure-sql-data";
 import { 
   aggregateTransactionsByLocation,
   aggregateTransactionsByCategory,
@@ -26,6 +36,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Dashboard data endpoints (Azure Blob Storage)
   app.get("/api/dashboard-data", getDashboardData);
   app.get("/api/dashboard-data/subset", getDashboardDataSubset);
+
+  // Parquet data endpoints
+  app.get("/api/parquet", getParquetMetadata);
+  app.get("/api/parquet/data", getParquetData);
+
+  // Azure SQL data endpoints (TBWA Mock Data)
+  app.get("/api/azure-sql/transactions", getTransactions);
+  app.get("/api/azure-sql/brands", getBrandPerformance);
+  app.get("/api/azure-sql/locations", getLocationAnalytics);
+  app.get("/api/azure-sql/kpi", getAzureSQLKPIs);
+  app.get("/api/azure-sql/trends", getTrendData);
+  app.get("/api/azure-sql/metadata", getDatasetMetadata);
+  app.post("/api/azure-sql/query", executeCustomQuery);
 
   // Dashboard analytics endpoints
   app.get("/api/dashboard/kpi", async (req, res) => {
