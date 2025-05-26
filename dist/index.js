@@ -3808,8 +3808,12 @@ app.use((req, res, next) => {
   if (process.env.AZURE_FUNCTIONS_ENVIRONMENT) {
     return app;
   }
-  const port = process.env.PORT || 5e3;
+  const port = parseInt(process.env.PORT || "8080", 10);
+  console.log(`\u{1F680} Starting server...`);
+  console.log(`Environment: ${process.env.NODE_ENV || "development"}`);
+  console.log(`Port: ${port} (from ${process.env.PORT ? "env" : "default"})`);
   server.listen(port, "0.0.0.0", () => {
+    console.log(`\u2705 Server running on http://0.0.0.0:${port}`);
     log(`serving on port ${port}`);
   });
 })();
