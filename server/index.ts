@@ -67,11 +67,17 @@ app.use((req, res, next) => {
     return app;
   }
 
-  // ALWAYS serve the app on port 5000
+  // Azure App Service expects port 8080, but will set PORT env var
   // this serves both the API and the client.
-  // It is the only port that is not firewalled.
-  const port = process.env.PORT || 5000;
+  const port = parseInt(process.env.PORT || "8080", 10);
+  
+  // Add startup logging for Azure diagnostics
+  console.log(`🚀 Starting server...`);
+  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`Port: ${port} (from ${process.env.PORT ? 'env' : 'default'})`);
+  
   server.listen(port, "0.0.0.0", () => {
+    console.log(`✅ Server running on http://0.0.0.0:${port}`);
     log(`serving on port ${port}`);
   });
 })();
