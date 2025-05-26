@@ -3,7 +3,8 @@ import { useState } from "react";
 import type { KPIMetrics, LocationData, CategoryData, BrandData, TrendData, AIInsight } from "@shared/schema";
 
 // Determine if we should use API or static data
-const USE_API = process.env.NODE_ENV === 'production' || window.location.hostname !== 'localhost';
+// For Surge deployment, always use static data since there's no backend
+const USE_API = false; // Changed to always use static data for now
 
 // Mock data generators
 const generateMockKPIMetrics = (): KPIMetrics => ({
