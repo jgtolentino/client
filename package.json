@@ -5,18 +5,16 @@
   "license": "MIT",
   "scripts": {
     "dev": "NODE_ENV=development tsx server/index.ts",
-    "build": "vite build && find dist -name 'Icon*' -delete && find dist -name '*backup*' -delete && cp staticwebapp.config.json dist/public/",
-    "build:client": "npx vite build && cp staticwebapp.config.json dist/public/",
-    "start": "NODE_ENV=production node dist/index.js",
+    "build": "npm run build:client",
+    "build:client": "vite build && find dist -name 'Icon*' -delete && find dist -name '*backup*' -delete",
+    "start": "NODE_ENV=production tsx server/index.ts",
     "check": "tsc",
+    "clean": "rm -rf dist && rm -rf node_modules/.cache",
     "db:push": "drizzle-kit push",
     "deploy:vercel": "vercel --prod",
     "deploy:netlify": "netlify deploy --prod --dir=dist/public",
-    "deploy:azure": "echo 'Use GitHub Actions for Azure deployment'",
+    "deploy:azure": "./deploy-azure.sh",
     "deploy:all": "npm run deploy:vercel && npm run deploy:netlify"
-  },
-  "engines": {
-    "node": "22.x"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

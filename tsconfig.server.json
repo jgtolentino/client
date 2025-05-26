@@ -1,0 +1,40 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "outDir": "./dist/server",
+    "rootDir": "./server",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "declaration": false,
+    "sourceMap": false,
+    "paths": {
+      "@shared/*": ["./shared/*"]
+    }
+  },
+  "include": [
+    "server/index.ts",
+    "server/routes.ts",
+    "server/health.ts",
+    "server/vite.ts",
+    "server/routes/dashboard-data.ts",
+    "server/routes/datasources.ts",
+    "shared/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "client",
+    "server/datasources/connectors/ParquetConnector.ts",
+    "server/storage-db.ts",
+    "server/storage-new.ts",
+    "server/storage.ts",
+    "**/*.test.ts",
+    "**/*.spec.ts"
+  ]
+}
