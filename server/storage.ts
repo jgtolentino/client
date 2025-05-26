@@ -304,7 +304,8 @@ export class MemStorage implements IStorage {
   }
 }
 
-// Database Storage Implementation
+// Database Storage Implementation (commented out - requires DATABASE_URL)
+/*
 import { users, transactions, consumers, type User, type InsertUser, type Transaction, type InsertTransaction, type Consumer, type InsertConsumer } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc } from "drizzle-orm";
@@ -437,8 +438,7 @@ export class DatabaseStorage implements IStorage {
     return insights;
   }
 }
+*/
 
-// Use database storage in production, memory storage in development
-export const storage = process.env.NODE_ENV === 'production' 
-  ? new DatabaseStorage() 
-  : new MemStorage();
+// Use memory storage for now (database requires DATABASE_URL)
+export const storage = new MemStorage();
