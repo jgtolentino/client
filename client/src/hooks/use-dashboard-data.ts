@@ -3,8 +3,12 @@ import { useState } from "react";
 import type { KPIMetrics, LocationData, CategoryData, BrandData, TrendData, AIInsight } from "@shared/schema";
 
 // Determine if we should use API or static data
-// For Surge deployment, always use static data since there's no backend
-const USE_API = false; // Changed to always use static data for now
+const USE_API = process.env.NODE_ENV === 'production' && window.location.hostname !== 'localhost';
+
+// API configuration
+const API_URL = process.env.NODE_ENV === 'production' 
+  ? process.env.VITE_API_URL || 'https://your-backend.railway.app/api'
+  : 'http://localhost:5000/api';
 
 // Mock data generators
 const generateMockKPIMetrics = (): KPIMetrics => ({
@@ -71,17 +75,44 @@ const generateMockAIInsights = (): AIInsight[] => [
 
 // Data fetchers
 const fetchRealData = async (endpoint: string) => {
-  // Use API endpoint in production or when configured
-  if (USE_API && endpoint === "dashboard_data") {
-    const response = await fetch(`/api/dashboard-data`);
-    if (!response.ok) throw new Error(`Failed to fetch ${endpoint} from API`);
-    return response.json();
+  // Use API endpoint when configured
+  if (USE_API) {
+    try {
+      const response = await fetch(`${API_URL}/dashboard-data`);
+      if (!response.ok) throw new Error(`API request failed: ${response.status}`);
+      return response.json();
+    } catch (error) {
+      console.warn('API fetch failed, falling back to static data:', error);
+      // Fallback to static data
+    }
   }
   
   // Fallback to static JSON files
   const response = await fetch(`/data/${endpoint}.json`);
   if (!response.ok) throw new Error(`Failed to fetch ${endpoint}`);
   return response.json();
+};
+
+// Fetch data from Parquet API
+const fetchParquetData = async (sql: string) => {
+  if (!USE_API) {
+    throw new Error('API not available');
+  }
+
+  const response = await fetch(`${API_URL}/datasources/parquet/query`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ sql }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Parquet query failed: ${response.status}`);
+  }
+
+  const result = await response.json();
+  return result.rows;
 };
 
 export function useDashboardData() {

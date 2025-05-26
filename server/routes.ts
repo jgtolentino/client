@@ -15,8 +15,13 @@ import type {
   TrendData 
 } from "@shared/schema";
 import datasourceRoutes from "./routes/datasources";
+import { ParquetConnector } from "./datasources/connectors/ParquetConnector";
+import { dataSourceManager } from "./datasources/core/DataSourceManager";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Initialize Parquet connector
+  await initializeParquetConnector();
+
   // Register datasource routes
   app.use("/api", datasourceRoutes);
 
@@ -563,4 +568,26 @@ function calculatePrediction(transactions: Transaction[], metric: string): numbe
   const currentValue = calculateCurrentValue(transactions, metric);
   const growthRate = 0.05; // 5% growth prediction
   return currentValue * (1 + growthRate);
+}
+
+// Initialize Parquet connector
+async function initializeParquetConnector(): Promise<void> {
+  try {
+    const parquetConnector = new ParquetConnector(
+      'parquet-main',
+      'Dashboard Parquet Data',
+      {
+        storageType: process.env.NODE_ENV === 'production' ? 'azure-blob' : 'local',
+        containerName: process.env.AZURE_CONTAINER_NAME || 'dashboard-data',
+        connectionString: process.env.AZURE_STORAGE_CONNECTION_STRING,
+        localPath: process.env.NODE_ENV !== 'production' ? './parquet_output' : undefined
+      }
+    );
+
+    await dataSourceManager.registerDataSource('parquet', parquetConnector);
+    console.log('✅ Parquet connector initialized successfully');
+  } catch (error) {
+    console.warn('⚠️ Failed to initialize Parquet connector:', error);
+    console.log('Dashboard will fall back to static JSON data');
+  }
 }
