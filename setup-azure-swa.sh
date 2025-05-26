@@ -51,7 +51,7 @@ az staticwebapp create \
     --name "$APP_NAME" \
     --resource-group "$RESOURCE_GROUP" \
     --location "$LOCATION" \
-    --sku Free
+    --sku Standard
 
 # Get deployment token
 echo "Getting deployment token..."

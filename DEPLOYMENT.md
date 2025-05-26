@@ -17,7 +17,7 @@ This repository is configured for automatic deployment to Azure Static Web Apps.
 3. Configure:
    - **Resource Group**: Create new or use existing
    - **Name**: `your-app-name`
-   - **Plan type**: Free
+   - **Plan type**: Standard
    - **Region**: Choose closest to your users
    - **Source**: GitHub
    - **Organization**: Your GitHub username
