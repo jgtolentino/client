@@ -2,3 +2,15 @@
 # macOS Icon files
 Icon
 **/Icon
+
+# Backup files
+*backup*.json
+*.backup.json
+
+# macOS system files
+.DS_Store
+Thumbs.db
+
+# Large data files
+dashboard_data_backup.json
+dashboard_data_original_backup.json
