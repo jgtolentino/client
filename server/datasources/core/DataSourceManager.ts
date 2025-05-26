@@ -8,6 +8,7 @@ import {
 import { BaseConnector } from './BaseConnector';
 import { MemoryConnector } from '../connectors/MemoryConnector';
 import { CSVConnector } from '../connectors/CSVConnector';
+import { RestAPIConnector } from '../connectors/RestAPIConnector';
 
 // Type for connector constructor
 type ConnectorConstructor = new (config: ConnectionConfig) => IDataConnector;
@@ -334,9 +335,42 @@ export class DataSourceManager {
       }
     });
 
+    // REST API connector
+    this.registerConnectorType('rest-api', RestAPIConnector, {
+      name: 'rest-api',
+      displayName: 'REST API Connector',
+      description: 'Connect to any REST API and query data with SQL',
+      version: '1.0.0',
+      author: 'System',
+      icon: 'cloud',
+      configSchema: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' },
+          name: { type: 'string' },
+          baseUrl: { type: 'string', description: 'Base URL of the REST API' },
+          auth: {
+            type: 'object',
+            properties: {
+              type: { type: 'string', enum: ['basic', 'bearer', 'apiKey', 'oauth2'] },
+              credentials: { type: 'object' }
+            }
+          },
+          headers: { type: 'object', description: 'Additional headers to send with requests' },
+          rateLimit: {
+            type: 'object',
+            properties: {
+              requests: { type: 'number' },
+              interval: { type: 'number' }
+            }
+          }
+        },
+        required: ['id', 'name', 'baseUrl']
+      }
+    });
+
     // Additional connectors will be registered here as they're implemented
     // this.registerConnectorType('postgresql', PostgreSQLConnector, { ... });
-    // this.registerConnectorType('rest', RESTConnector, { ... });
   }
 }
 

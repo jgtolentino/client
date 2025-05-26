@@ -4,16 +4,20 @@ import {
   QueryRequest, 
   QueryResult, 
   DatabaseSchema,
-  TableSchema,
-  ColumnSchema,
-  DataType
+  TableInfo,
+  ColumnInfo,
+  DataType,
+  ConnectionTestResult,
+  ConnectorCapabilities,
+  ConnectorMetadata
 } from '../core/types';
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
-import alasql from 'alasql';
+import * as alasql from 'alasql';
 import { RateLimiter } from 'limiter';
 
 interface RestAPIConfig extends ConnectionConfig {
   baseUrl: string;
+  timeout?: number;
   auth?: {
     type: 'basic' | 'bearer' | 'apiKey' | 'oauth2';
     credentials?: {
@@ -59,7 +63,7 @@ interface EndpointConfig {
   params?: Record<string, any>;
   body?: any;
   tableName: string;
-  schema?: TableSchema;
+  schema?: TableInfo;
   transform?: RestAPIConfig['transform'];
   pagination?: RestAPIConfig['pagination'];
 }
@@ -91,7 +95,7 @@ export class RestAPIConnector extends BaseConnector {
           };
           break;
         case 'bearer':
-          axiosConfig.headers!.Authorization = `Bearer ${config.auth.credentials?.token}`;
+                axiosConfig.headers!.Authorization = `Bearer ${config.auth.credentials?.token}`;
           break;
         case 'apiKey':
           const header = config.auth.credentials?.apiKeyHeader || 'X-API-Key';
@@ -127,8 +131,10 @@ export class RestAPIConnector extends BaseConnector {
   }
 
   async query<T = any>(request: QueryRequest): Promise<QueryResult<T>> {
-    if (request.type === 'sql') {
-      return this.executeSQLQuery<T>(request.sql!);
+    const startTime = Date.now();
+    
+    if (request.sql) {
+      return this.executeSQLQuery<T>(request.sql);
     }
 
     // For structured queries, map to endpoint
@@ -139,28 +145,27 @@ export class RestAPIConnector extends BaseConnector {
 
     const data = await this.fetchEndpointData(endpoint);
     
-    // Apply filters and transforms
+    // Apply filters if provided via where clauses
     let result = data;
-    if (request.filters) {
-      result = this.applyFilters(result, request.filters);
+    if (request.where && request.where.length > 0) {
+      result = this.applyWhereFilters(result, request.where);
     }
     if (request.limit) {
       result = result.slice(0, request.limit);
     }
 
     return {
-      data: result as T[],
-      metadata: {
-        rowCount: result.length,
-        executionTime: Date.now() - request.timestamp!
-      }
+      rows: result as T[],
+      rowCount: result.length,
+      fields: this.getFieldsFromData(result),
+      executionTime: Date.now() - startTime
     };
   }
 
   async getSchema(): Promise<DatabaseSchema> {
-    const tables: TableSchema[] = [];
+    const tables: TableInfo[] = [];
 
-    for (const [name, endpoint] of this.endpoints) {
+    for (const [name, endpoint] of Array.from(this.endpoints)) {
       if (endpoint.schema) {
         tables.push(endpoint.schema);
       } else {
@@ -177,12 +182,13 @@ export class RestAPIConnector extends BaseConnector {
     }
 
     return {
+      name: 'rest-api',
       tables,
-      version: '1.0'
+      relationships: []
     };
   }
 
-  async testConnection(): Promise<boolean> {
+  async testConnection(): Promise<ConnectionTestResult> {
     try {
       // Test with a simple request
       const testEndpoint = this.endpoints.values().next().value;
@@ -192,11 +198,73 @@ export class RestAPIConnector extends BaseConnector {
         // Just test base URL
         await this.client.get('/');
       }
-      return true;
+      return {
+        success: true,
+        message: 'Connection successful'
+      };
     } catch (error) {
       console.error('Connection test failed:', error);
-      return false;
+      return {
+        success: false,
+        message: `Connection failed: ${error instanceof Error ? error.message : String(error)}`,
+        error: error instanceof Error ? error : new Error(String(error))
+      };
     }
+  }
+
+  async getTables(): Promise<TableInfo[]> {
+    const schema = await this.getSchema();
+    return schema.tables;
+  }
+
+  async getTableSchema(tableName: string): Promise<TableInfo> {
+    const endpoint = this.endpoints.get(tableName);
+    if (!endpoint) {
+      throw new Error(`No endpoint configured for table: ${tableName}`);
+    }
+
+    if (endpoint.schema) {
+      return endpoint.schema;
+    }
+
+    // Discover schema from sample data
+    const sample = await this.fetchEndpointData(endpoint, { limit: 5 });
+    const schema = this.discoverSchema(tableName, sample);
+    endpoint.schema = schema;
+    return schema;
+  }
+
+  getCapabilities(): ConnectorCapabilities {
+    return {
+      supportsStreaming: false,
+      supportsTransactions: false,
+      supportsBatchOperations: false,
+      supportsSchemaDiscovery: true,
+      supportsStoredProcedures: false,
+      supportsViews: false,
+      maxQuerySize: 1000000,
+      maxResultSize: 10000000
+    };
+  }
+
+  getMetadata(): ConnectorMetadata {
+    return {
+      name: 'rest-api',
+      displayName: 'REST API Connector',
+      description: 'Connect to any REST API and query data with SQL',
+      version: '1.0.0',
+      author: 'System',
+      icon: 'cloud',
+      configSchema: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' },
+          name: { type: 'string' },
+          baseUrl: { type: 'string' }
+        },
+        required: ['id', 'name', 'baseUrl']
+      }
+    };
   }
 
   // Add or update an endpoint
@@ -381,7 +449,7 @@ export class RestAPIConnector extends BaseConnector {
     // Create temporary tables from all endpoints
     const tempTables: Record<string, any[]> = {};
     
-    for (const [name, endpoint] of this.endpoints) {
+    for (const [name, endpoint] of Array.from(this.endpoints)) {
       try {
         tempTables[name] = await this.fetchEndpointData(endpoint);
       } catch (error) {
@@ -394,26 +462,60 @@ export class RestAPIConnector extends BaseConnector {
     const result = alasql(sql, tempTables);
     
     return {
-      data: result,
-      metadata: {
-        rowCount: Array.isArray(result) ? result.length : 0,
-        executionTime: Date.now() - startTime
-      }
+      rows: Array.isArray(result) ? result : [result],
+      rowCount: Array.isArray(result) ? result.length : 1,
+      fields: this.getFieldsFromData(Array.isArray(result) ? result : [result]),
+      executionTime: Date.now() - startTime
     };
   }
 
-  private applyFilters(data: any[], filters: Record<string, any>): any[] {
+  private applyWhereFilters(data: any[], whereClause: any[]): any[] {
     return data.filter(item => {
-      for (const [key, value] of Object.entries(filters)) {
-        if (item[key] !== value) {
-          return false;
+      // Simple implementation for basic where clauses
+      return whereClause.every(clause => {
+        const fieldValue = item[clause.field];
+        switch (clause.operator) {
+          case '=':
+            return fieldValue === clause.value;
+          case '!=':
+            return fieldValue !== clause.value;
+          case '>':
+            return fieldValue > clause.value;
+          case '>=':
+            return fieldValue >= clause.value;
+          case '<':
+            return fieldValue < clause.value;
+          case '<=':
+            return fieldValue <= clause.value;
+          case 'LIKE':
+            return String(fieldValue).includes(String(clause.value));
+          default:
+            return true;
         }
-      }
-      return true;
+      });
     });
   }
 
-  private discoverSchema(tableName: string, sampleData: any[]): TableSchema {
+  private getFieldsFromData(data: any[]): import('../core/types').FieldInfo[] {
+    if (!data || data.length === 0) {
+      return [];
+    }
+
+    const sample = data[0];
+    const fields: import('../core/types').FieldInfo[] = [];
+
+    for (const [key, value] of Object.entries(sample)) {
+      fields.push({
+        name: key,
+        type: this.inferDataType(value),
+        nullable: true
+      });
+    }
+
+    return fields;
+  }
+
+  private discoverSchema(tableName: string, sampleData: any[]): TableInfo {
     if (!sampleData || sampleData.length === 0) {
       return {
         name: tableName,
@@ -421,33 +523,35 @@ export class RestAPIConnector extends BaseConnector {
       };
     }
 
-    const columns: ColumnSchema[] = [];
+    const columns: ColumnInfo[] = [];
     const sample = sampleData[0];
 
     for (const [key, value] of Object.entries(sample)) {
       columns.push({
         name: key,
         type: this.inferDataType(value),
+        nativeType: typeof value,
         nullable: true
       });
     }
 
     return {
       name: tableName,
-      columns
+      columns,
+      rowCount: sampleData.length
     };
   }
 
   private inferDataType(value: any): DataType {
-    if (value === null || value === undefined) return 'string';
-    if (typeof value === 'number') return Number.isInteger(value) ? 'integer' : 'decimal';
-    if (typeof value === 'boolean') return 'boolean';
-    if (value instanceof Date) return 'timestamp';
+    if (value === null || value === undefined) return DataType.String;
+    if (typeof value === 'number') return DataType.Number;
+    if (typeof value === 'boolean') return DataType.Boolean;
+    if (value instanceof Date) return DataType.DateTime;
     if (typeof value === 'string') {
-      if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return 'date';
-      if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(value)) return 'timestamp';
+      if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return DataType.Date;
+      if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(value)) return DataType.DateTime;
     }
-    return 'string';
+    return DataType.String;
   }
 
   private loadAPITemplate(config: RestAPIConfig): void {

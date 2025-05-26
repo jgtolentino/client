@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { dataSourceManager } from '../datasources';
-import { CSVConnector } from '../datasources';
+import { CSVConnector, RestAPIConnector } from '../datasources';
 import multer from 'multer';
 import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
@@ -423,6 +423,281 @@ router.get('/datasources/:id/stream/:table', async (req: Request, res: Response)
   } catch (error: any) {
     res.write(`event: error\ndata: ${JSON.stringify({ error: error.message })}\n\n`);
     res.end();
+  }
+});
+
+// REST API Connector specific endpoints
+
+// POST /api/datasources/:id/endpoints - Add REST API endpoint
+router.post('/datasources/:id/endpoints', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { name, path, method, params, body, tableName, transform, pagination } = req.body;
+
+    if (!name || !path) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required fields: name, path'
+      });
+    }
+
+    const connector = await dataSourceManager.getConnector(id);
+    if (!(connector instanceof RestAPIConnector)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Data source is not a REST API connector'
+      });
+    }
+
+    connector.addEndpoint(name, {
+      path,
+      method: method || 'GET',
+      params,
+      body,
+      tableName: tableName || name,
+      transform,
+      pagination
+    });
+
+    res.json({
+      success: true,
+      data: { name, path, method: method || 'GET' }
+    });
+  } catch (error: any) {
+    res.status(400).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// GET /api/datasources/:id/endpoints - List REST API endpoints
+router.get('/datasources/:id/endpoints', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    
+    const connector = await dataSourceManager.getConnector(id);
+    if (!(connector instanceof RestAPIConnector)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Data source is not a REST API connector'
+      });
+    }
+
+    // Get schema which includes endpoint information
+    const schema = await connector.getSchema();
+    const endpoints = schema.tables.map(table => ({
+      name: table.name,
+      rowCount: table.rowCount || 0,
+      columnCount: table.columns?.length || 0
+    }));
+
+    res.json({
+      success: true,
+      data: endpoints
+    });
+  } catch (error: any) {
+    res.status(400).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// POST /api/datasources/:id/test-endpoint - Test a specific endpoint
+router.post('/datasources/:id/test-endpoint', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { name, path, method, params, body } = req.body;
+
+    if (!path) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required field: path'
+      });
+    }
+
+    const connector = await dataSourceManager.getConnector(id);
+    if (!(connector instanceof RestAPIConnector)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Data source is not a REST API connector'
+      });
+    }
+
+    // Temporarily add endpoint for testing
+    const testName = `test_${Date.now()}`;
+    connector.addEndpoint(testName, {
+      path,
+      method: method || 'GET',
+      params,
+      body,
+      tableName: testName
+    });
+
+    try {
+      // Query a small sample
+      const result = await dataSourceManager.query(id, {
+        table: testName,
+        limit: 5
+      });
+
+      res.json({
+        success: true,
+        data: {
+          sampleData: result.data,
+          rowCount: result.metadata?.rowCount || 0,
+          executionTime: result.metadata?.executionTime || 0
+        }
+      });
+    } catch (testError: any) {
+      res.status(400).json({
+        success: false,
+        error: `Endpoint test failed: ${testError.message}`
+      });
+    }
+  } catch (error: any) {
+    res.status(400).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// GET /api/datasources/templates - Get REST API templates
+router.get('/datasources/templates', async (req: Request, res: Response) => {
+  try {
+    const templates = {
+      github: {
+        name: 'GitHub API',
+        baseUrl: 'https://api.github.com',
+        auth: {
+          type: 'bearer',
+          credentials: {
+            token: 'YOUR_GITHUB_TOKEN'
+          }
+        },
+        endpoints: [
+          {
+            name: 'repositories',
+            path: '/user/repos',
+            pagination: {
+              type: 'page',
+              pageParam: 'page',
+              limitParam: 'per_page'
+            }
+          },
+          {
+            name: 'issues',
+            path: '/issues',
+            pagination: {
+              type: 'page',
+              pageParam: 'page',
+              limitParam: 'per_page'
+            }
+          }
+        ]
+      },
+      stripe: {
+        name: 'Stripe API',
+        baseUrl: 'https://api.stripe.com',
+        auth: {
+          type: 'bearer',
+          credentials: {
+            token: 'YOUR_STRIPE_SECRET_KEY'
+          }
+        },
+        endpoints: [
+          {
+            name: 'customers',
+            path: '/v1/customers',
+            pagination: {
+              type: 'cursor',
+              cursorParam: 'starting_after',
+              limitParam: 'limit',
+              dataPath: 'data'
+            }
+          },
+          {
+            name: 'charges',
+            path: '/v1/charges',
+            pagination: {
+              type: 'cursor',
+              cursorParam: 'starting_after',
+              limitParam: 'limit',
+              dataPath: 'data'
+            }
+          }
+        ]
+      },
+      shopify: {
+        name: 'Shopify API',
+        baseUrl: 'https://your-shop.myshopify.com',
+        auth: {
+          type: 'apiKey',
+          credentials: {
+            apiKey: 'YOUR_API_KEY',
+            apiKeyHeader: 'X-Shopify-Access-Token'
+          }
+        },
+        endpoints: [
+          {
+            name: 'products',
+            path: '/admin/api/2023-10/products.json',
+            pagination: {
+              type: 'link',
+              nextLinkPath: 'link',
+              dataPath: 'products'
+            }
+          },
+          {
+            name: 'orders',
+            path: '/admin/api/2023-10/orders.json',
+            pagination: {
+              type: 'link',
+              nextLinkPath: 'link',
+              dataPath: 'orders'
+            }
+          }
+        ]
+      },
+      custom: {
+        name: 'Custom REST API',
+        baseUrl: 'https://api.example.com',
+        auth: {
+          type: 'bearer',
+          credentials: {
+            token: 'YOUR_API_TOKEN'
+          }
+        },
+        rateLimit: {
+          requests: 100,
+          interval: 60000
+        },
+        pagination: {
+          type: 'page',
+          pageParam: 'page',
+          limitParam: 'limit'
+        },
+        endpoints: [
+          {
+            name: 'data',
+            path: '/api/data',
+            method: 'GET'
+          }
+        ]
+      }
+    };
+
+    res.json({
+      success: true,
+      data: templates
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
   }
 });
 
