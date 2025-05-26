@@ -9,7 +9,14 @@
     "build:client": "npx vite build && cp staticwebapp.config.json dist/public/",
     "start": "NODE_ENV=production node dist/index.js",
     "check": "tsc",
-    "db:push": "drizzle-kit push"
+    "db:push": "drizzle-kit push",
+    "deploy:vercel": "vercel --prod",
+    "deploy:netlify": "netlify deploy --prod --dir=dist/public",
+    "deploy:azure": "echo 'Use GitHub Actions for Azure deployment'",
+    "deploy:all": "npm run deploy:vercel && npm run deploy:netlify"
+  },
+  "engines": {
+    "node": "22.x"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

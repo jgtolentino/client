@@ -14,3 +14,4 @@ Thumbs.db
 # Large data files
 dashboard_data_backup.json
 dashboard_data_original_backup.json
+.vercel

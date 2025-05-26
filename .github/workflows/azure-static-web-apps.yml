@@ -2,10 +2,13 @@ name: Azure Static Web Apps CI/CD
 
 on:
   push:
-    branches: [ main ]
+    branches: 
+      - main
+      - azure-deploy  # Create separate branch for Azure testing
   pull_request:
     types: [opened, synchronize, reopened, closed]
     branches: [ main ]
+  workflow_dispatch:  # Manual trigger option
 
 jobs:
   build_and_deploy_job:
